@@ -1,6 +1,7 @@
 # Pay Gap Estimator
 
 This tool estimates the **gender pay gap** from a company's **salary table** (min/max pay per level) and the **number of women and men at each level**. It doesn't need individual salaries.
+The web app: https://nabizeus.github.io/paygap-estimator/
 
 It is available in two forms that use the same method and give the same numbers:
 
@@ -19,11 +20,6 @@ Open `index.html` in a browser. The app has four steps:
 4. **Results**: a plain-language verdict, three statistical tests, a per-level table, charts, a comparison of all departments, and a what-if simulator.
 
 All data stays in the user's own browser (localStorage). Nothing is uploaded. Use **Export / Import** (JSON) to keep a copy or move data between devices.
-
-### Publish it on GitHub Pages
-1. Create a repository and push these files.
-2. Go to **Settings → Pages → Build and deployment**, choose *Deploy from a branch*, then select `main` / `/ (root)`.
-3. The app will be live at `https://nabizeus.github.io/paygap-estimator/`.
 
 
 

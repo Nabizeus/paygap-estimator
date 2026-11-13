@@ -23,12 +23,9 @@ All data stays in the user's own browser (localStorage). Nothing is uploaded. Us
 ### Publish it on GitHub Pages
 1. Create a repository and push these files.
 2. Go to **Settings → Pages → Build and deployment**, choose *Deploy from a branch*, then select `main` / `/ (root)`.
-3. The app will be live at `https://<user>.github.io/<repo>/`.
+3. The app will be live at `https://nabizeus.github.io/paygap-estimator/`.
 
-### Or on GitLab Pages
-Push the repository to GitLab. The included `.gitlab-ci.yml` publishes the app automatically. Find its address under **Deploy → Pages**.
 
-`index.html` is generated from `src/` by `python build.py`. Edit the files in `src/`, then rebuild.
 
 ## Python
 
@@ -71,9 +68,3 @@ The method follows the GUM, [JCGM 100:2008 — *Guide to the expression of uncer
 - Groups smaller than about 5 people give unreliable results and may identify individuals.
 - Statistical significance does not prove discrimination.
 
-### Differences from the original spreadsheet (`CumulativeWageGapEstimates.xlsx`)
-- Significance labels and degrees of freedom are calculated, not typed in by hand.
-- DoF is always N_women + N_men − 2. The spreadsheet sometimes used −1, and the ratio test reused DoF = 26 for every department.
-- The error of the pay ratio is T·√((σ_W/W)² + (σ_M/M)²). The spreadsheet mixed a relative and an absolute term.
-- Levels with only women or only men are reported as *not testable*.
-- The total-pay and average-pay results are otherwise identical to the spreadsheet.

@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "paygap"
+version = "1.0.0"
+description = "Estimate the gender pay gap from salary bands and headcounts (GUM uncertainty + Student t-tests)"
+requires-python = ">=3.8"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest", "scipy"]
+
+[tool.setuptools]
+packages = ["paygap"]

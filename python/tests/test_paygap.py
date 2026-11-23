@@ -31,9 +31,19 @@ def test_uniform_matches_spreadsheet():
     assert r["total"]["confidence"] == pytest.approx(0.9997019406, abs=1e-9)
 
 
-def test_untestable_levels():
+def test_fisher_matches_scipy():
+    stats = pytest.importorskip("scipy.stats")
+    from paygap import fisher_exact_two_sided
+    for t in [(4, 3, 8, 13), (0, 3, 12, 13), (1000, 3000, 1900, 3789), (50, 89, 2850, 6700), (2, 0, 10, 16)]:
+        a, b, c, d = t
+        assert math.isclose(fisher_exact_two_sided(*t), stats.fisher_exact([[a, b], [c, d]])[1], rel_tol=1e-6, abs_tol=1e-12)
+
+
+def test_representation_levels():
     r = analyze(dept([4, 8, 0, 0], [3, 8, 3, 2]))
-    assert [l["label"] for l in r["levels"]] == ["Sig", "NotSig", "n/a", "n/a"]
+    reps = [l["representation"] for l in r["levels"]]
+    assert reps == ["over", "over", "under", "under"]
+    assert all(l["label"] == "NotSig" for l in r["levels"])  # small groups: no significant difference
 
 
 def test_parity():

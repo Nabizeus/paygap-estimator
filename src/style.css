@@ -2,7 +2,7 @@
   color-scheme: light;
   --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
   --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10); --hover:rgba(11,11,11,.04);
-  --w:#2a78d6; --m:#eb6834; --accent:#2a78d6; --warn-bg:#fff6e0; --warn-ink:#6b4a00;
+  --w:#3aa36a; --m:#a06a2a; --accent:#2a78d6; --warn-bg:#fff6e0; --warn-ink:#6b4a00;
   --err:#d03b3b;
 }
 @media (prefers-color-scheme: dark){
@@ -10,14 +10,14 @@
     color-scheme: dark;
     --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
     --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --hover:rgba(255,255,255,.05);
-    --w:#3987e5; --m:#d95926; --accent:#3987e5; --warn-bg:#2e2510; --warn-ink:#f3d58a;
+    --w:#3aa36a; --m:#a06a2a; --accent:#3987e5; --warn-bg:#2e2510; --warn-ink:#f3d58a;
   }
 }
 :root[data-theme="dark"]{
   color-scheme: dark;
   --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
   --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --hover:rgba(255,255,255,.05);
-  --w:#3987e5; --m:#d95926; --accent:#3987e5; --warn-bg:#2e2510; --warn-ink:#f3d58a;
+  --w:#3aa36a; --m:#a06a2a; --accent:#3987e5; --warn-bg:#2e2510; --warn-ink:#f3d58a;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--page);color:var(--ink);
@@ -95,7 +95,7 @@ svg .lbl{fill:var(--ink2);font-size:12px}
 .stepper{display:inline-flex;align-items:center;border:1px solid var(--axis);border-radius:8px;overflow:hidden}
 .stepper button{border:0;background:var(--surface);color:var(--ink);width:28px;height:30px;font-size:16px;cursor:pointer}
 .stepper button:hover{background:var(--hover)}
-.stepper input{width:52px;border:0;border-radius:0;text-align:center;padding:5px 2px;background:var(--page)}
+.stepper input{width:70px;border:0;border-radius:0;text-align:center;padding:5px 2px;background:var(--page)}
 .delta{font-size:12px;color:var(--ink2);margin-left:4px}
 .cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}
 .cmp .big{font-size:22px}

@@ -59,6 +59,21 @@ const PayGap = (() => {
     const base = ref === "men" ? m : (w + m) / 2;
     return base ? diff / base : null;
   }
+  function logFactorials(n) {
+    const a = new Float64Array(n + 1);
+    for (let i = 2; i <= n; i++) a[i] = a[i - 1] + Math.log(i);
+    return a;
+  }
+  // Two-sided Fisher's exact test for the 2x2 table [[a, b], [c, d]]
+  function fisher(a, b, c, d, lf) {
+    const r1 = a + b, c1 = a + c, c2 = b + d, N = a + b + c + d;
+    if (!lf || lf.length <= N) lf = logFactorials(N);
+    const lp = x => lf[c1] - lf[x] - lf[c1 - x] + lf[c2] - lf[r1 - x] - lf[c2 - r1 + x] - (lf[N] - lf[r1] - lf[N - r1]);
+    const lo = Math.max(0, r1 - c2), hi = Math.min(r1, c1), obs = lp(a);
+    let p = 0;
+    for (let x = lo; x <= hi; x++) { const v = lp(x); if (v <= obs + 1e-7) p += Math.exp(v); }
+    return Math.min(1, p);
+  }
   const mid = l => (l.mid != null && l.mid !== "" && isFinite(+l.mid)) ? +l.mid : (+l.min + +l.max) / 2;
 
   /** levels: [{name,min,max,mid?}], women:[n], men:[n] */
@@ -68,19 +83,27 @@ const PayGap = (() => {
     const th = opts.thresholds || [0.99, 0.95, 0.90];
     const k = DIVISORS[dist];
     let fw = 0, fm = 0, vw = 0, vm = 0, nw = 0, nm = 0;
+    const W = levels.reduce((a, _, i) => a + (+women[i] || 0), 0);
+    const M = levels.reduce((a, _, i) => a + (+men[i] || 0), 0);
+    const lf = logFactorials(W + M), share = W + M ? W / (W + M) : NaN;
     const rows = levels.map((l, i) => {
-      const w = +women[i] || 0, m = +men[i] || 0;
+      const w = +women[i] || 0, m = +men[i] || 0, n = w + m;
       const mp = mid(l), sigma = (+l.max - +l.min) / k;
       const pw = w * mp, pm = m * mp, ew = w * sigma, em = m * sigma;
       fw += pw; fm += pm; vw += ew * ew; vm += em * em; nw += w; nm += m;
-      const diff = pw - pm, testable = w > 0 && m > 0;
-      const err = Math.hypot(ew, em);
-      const res = testable ? test(diff, err, w + m - 2, th)
-        : { diff, error: err, t: null, dof: w + m - 2, p: null, confidence: null, label: "n/a" };
+      // Representation: women's share at this level vs the rest of staff (Fisher's exact test)
+      const testable = n > 0 && n < W + M && W > 0 && M > 0;
+      const sw_ = n ? w / n : null, expected = n * share;
+      let res = { p: null, confidence: null, label: "n/a" };
+      if (testable) {
+        const p = fisher(w, m, W - w, M - m, lf), conf = 1 - p;
+        res = { p, confidence: conf, label: label(conf, th) };
+      }
+      const rep = !testable ? null : Math.abs(w - expected) < 0.5 ? "as_expected" : w < expected ? "under" : "over";
       return Object.assign({ level: l.name, women: w, men: m, midpoint: mp, sigma,
         pay_women: pw, pay_men: pm, err_women: ew, err_men: em, testable,
-        rel: rel(diff, pw, pm, ref),
-        favours: !testable ? null : diff > 0 ? "women" : diff < 0 ? "men" : "parity" }, res);
+        share_women: sw_, share_overall: share, share_diff: sw_ == null ? null : sw_ - share,
+        expected_women: expected, representation: rep }, res);
     });
     const out = { distribution: dist, reference: ref, women: nw, men: nm, levels: rows };
     if (nw === 0 || nm === 0) { out.error = "empty"; return out; }
@@ -96,6 +119,6 @@ const PayGap = (() => {
     Object.assign(ratio, { headcount_ratio: hr, pay_ratio: pr, excess: pr / hr - 1 });
     return Object.assign(out, { total, mean, ratio });
   }
-  return { analyze, tP, label, mid };
+  return { analyze, tP, label, mid, fisher };
 })();
 if (typeof module !== "undefined") module.exports = PayGap;

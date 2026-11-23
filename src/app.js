@@ -248,11 +248,8 @@ function staffWarnings(d) {
   state.levels.forEach((l, i) => {
     const w = +d.w[i] || 0, m = +d.m[i] || 0;
     if (w + m === 0) return;
-    if (w === 0 || m === 0) out.push(tr("w_nolevel", { level: l.name, who: w === 0 ? M : W }));
-    else {
-      if (w < 5) out.push(tr("w_small", { level: l.name, who: W }));
-      if (m < 5) out.push(tr("w_small", { level: l.name, who: M }));
-    }
+    if (w > 0 && w < 5) out.push(tr("w_small", { level: l.name, who: W }));
+    if (m > 0 && m < 5) out.push(tr("w_small", { level: l.name, who: M }));
   });
   const tw = d.w.reduce((a, b) => a + (+b || 0), 0), tm = d.m.reduce((a, b) => a + (+b || 0), 0);
   if (!tw || !tm) out.unshift(tr("w_empty"));
@@ -326,12 +323,14 @@ function verdictHTML(r) {
   else if (m.label === "MidSig") parts.push(tr("v_mid", { conf: conf(m.confidence) }));
   else if (m.label === "NotSig") parts.push(tr("v_not", { conf: conf(m.confidence) }));
   let html = `<p><strong>${esc(parts[0])}</strong> ${esc(parts.slice(1).join(" "))}</p>`;
-  // representation at the top
-  const n = state.levels.length, topN = Math.max(1, Math.floor(n / 2));
-  const top = r.levels.slice(n - topN);
-  const tw = top.reduce((a, l) => a + l.women, 0), tt = top.reduce((a, l) => a + l.women + l.men, 0);
-  const share = r.women / (r.women + r.men);
-  if (tt > 0 && Math.abs(tw / tt - share) > 0.05) html += `<p>${esc(tr("v_share", { a: pct(share, 0), b: pct(tw / tt, 0), n: topN }))}</p>`;
+  // significant under/over-representation by level
+  const sig = l => l.label === "HiSig" || l.label === "Sig";
+  const list = rep => r.levels.filter(l => sig(l) && l.representation === rep).map(l => `${l.level} (${pct(l.share_women, 0)})`).join(", ");
+  const under = list("under"), over = list("over");
+  const reps = [];
+  if (under) reps.push(tr("v_under", { levels: under }));
+  if (over) reps.push(tr("v_over", { levels: over }));
+  if (reps.length) html += `<p>${esc(tr("v_rep_intro", { a: pct(r.women / (r.women + r.men), 0) }))} ${esc(reps.join(" "))}</p>`;
   if (r.men !== r.women && Math.abs(r.total.rel) > Math.abs(m.rel) + 0.02) html += `<p class="help" style="margin:0">${esc(tr("v_total", { pct: pct(Math.abs(r.total.rel)), r: num(Math.max(r.men, r.women) / Math.min(r.men, r.women), 1) }))}</p>`;
   return html;
 }
@@ -361,9 +360,9 @@ function renderDept(el, idx) {
     <div><h3 style="margin-top:0">${esc(tr("ch_mean"))}</h3><div class="legend"><span style="--c:var(--w)">${esc(tr("women"))}</span><span style="--c:var(--m)">${esc(tr("men"))}</span></div><div id="chMean"></div></div>
   </div></section>
   <section class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(tr("per_level"))}</h2><span class="row" id="lvlBtns"></span></div>
-    <p class="help">${esc(tr("per_level_d"))}</p>
-    <div class="tbl-scroll"><table id="lvlTbl"><thead><tr><th>${esc(tr("level"))}</th><th class="n">${esc(tr("women"))}</th><th class="n">${esc(tr("men"))}</th><th class="n">${esc(tr("lvl_pay_w"))}</th><th class="n">${esc(tr("lvl_pay_m"))}</th><th class="n">${esc(tr("gap"))}</th><th class="n">${esc(tr("conf"))}</th><th>${esc(tr("favours"))}</th><th></th></tr></thead>
-    <tbody>${r.levels.map(l => `<tr><td>${esc(l.level)}</td><td class="n">${num(l.women)}</td><td class="n">${num(l.men)}</td><td class="n">${money(l.pay_women)}</td><td class="n">${money(l.pay_men)}</td><td class="n">${l.testable ? (l.rel > 0 ? "+" : "") + pct(l.rel) : "–"}</td><td class="n">${conf(l.confidence)}</td><td>${esc(favours(l.diff, l.label))}</td><td>${badge(l.label)}</td></tr>`).join("")}</tbody></table></div>
+    <p class="help">${esc(tr("per_level_d", { p: pct(r.women / (r.women + r.men), 1) }))}</p>
+    <div class="tbl-scroll"><table id="lvlTbl"><thead><tr><th>${esc(tr("level"))}</th><th class="n">${esc(tr("women"))}</th><th class="n">${esc(tr("men"))}</th><th class="n">${esc(tr("pay_pp"))}</th><th class="n">${esc(tr("w_share"))}</th><th class="n">${esc(tr("vs_all"))}</th><th class="n">${esc(tr("conf"))}</th><th>${esc(tr("women_are"))}</th><th></th></tr></thead>
+    <tbody>${r.levels.map(l => `<tr><td>${esc(l.level)}</td><td class="n">${num(l.women)}</td><td class="n">${num(l.men)}</td><td class="n">${money(l.midpoint)}</td><td class="n">${l.share_women == null ? "–" : pct(l.share_women, 1)}</td><td class="n">${ppTxt(l.share_diff)}</td><td class="n">${conf(l.confidence)}</td><td>${esc(repTxt(l))}</td><td>${badge(l.label)}</td></tr>`).join("")}</tbody></table></div>
     ${warns.length ? warns.map(w => `<div class="warn">${esc(w)}</div>`).join("") : ""}
   </section>
   <section class="card whatif" id="whatif"></section>`;
@@ -433,8 +432,9 @@ function bindTips(svg) {
 }
 function niceMax(v) { if (v <= 0) return 1; const p = Math.pow(10, Math.floor(Math.log10(v))); const f = v / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p; }
 function chartHeadcount(el, r) {
-  const W = Math.max(300, Math.round(el.clientWidth) || 460), H = 240, L = 34, R = 8, T = 10, B = 26;
+  const W = Math.max(300, Math.round(el.clientWidth) || 460), H = 240, R = 8, T = 10, B = 26;
   const max = niceMax(Math.max(1, ...r.levels.map(l => Math.max(l.women, l.men))));
+  const L = 14 + 7 * num(max).length;
   const n = r.levels.length, gw = (W - L - R) / n, bw = Math.min(26, gw * 0.32);
   const y = v => T + (H - T - B) * (1 - v / max);
   const ticks = [0, 0.25, 0.5, 0.75, 1].map(f => f * max);
@@ -479,11 +479,14 @@ function chartMeans(el, items) {
 }
 
 // ---------- export / tables ----------
+function ppTxt(v) { return v == null || !isFinite(v) ? "–" : (v > 0 ? "+" : v < 0 ? "−" : "") + num(Math.abs(v) * 100, 1) + " " + tr("pp"); }
+function repTxt(l) { return l.representation ? tr("rep_" + l.representation) : "–"; }
 function tsvLevels(d, r) {
-  const head = [tr("level"), tr("women"), tr("men"), tr("lvl_pay_w"), tr("lvl_pay_m"), tr("gap"), tr("conf"), tr("favours"), ""];
-  const rows = r.levels.map(l => [l.level, l.women, l.men, Math.round(l.pay_women), Math.round(l.pay_men), l.testable ? +(l.rel * 100).toFixed(2) + "%" : "", l.confidence != null ? +(l.confidence * 100).toFixed(3) + "%" : "", favours(l.diff, l.label), tr("lab_" + l.label)]);
-  const sum = [[], [tr("t_mean"), "", "", Math.round(r.mean.women), Math.round(r.mean.men), +(r.mean.rel * 100).toFixed(2) + "%", +(r.mean.confidence * 100).toFixed(3) + "%", favours(r.mean.diff, r.mean.label), tr("lab_" + r.mean.label)],
-    [tr("t_total"), r.women, r.men, Math.round(r.total.women), Math.round(r.total.men), +(r.total.rel * 100).toFixed(2) + "%", +(r.total.confidence * 100).toFixed(3) + "%", favours(r.total.diff, r.total.label), tr("lab_" + r.total.label)]];
+  const head = [tr("level"), tr("women"), tr("men"), tr("pay_pp"), tr("w_share"), tr("vs_all") + " (" + tr("pp") + ")", tr("conf"), tr("women_are"), ""];
+  const rows = r.levels.map(l => [l.level, l.women, l.men, Math.round(l.midpoint), l.share_women == null ? "" : +(l.share_women * 100).toFixed(2) + "%", l.share_diff == null ? "" : +(l.share_diff * 100).toFixed(2), l.confidence != null ? +(l.confidence * 100).toFixed(3) + "%" : "", repTxt(l), tr("lab_" + l.label)]);
+  const sum = [[], ["", tr("women"), tr("men"), tr("gap"), tr("conf"), ""],
+    [tr("t_mean"), Math.round(r.mean.women), Math.round(r.mean.men), +(r.mean.rel * 100).toFixed(2) + "%", +(r.mean.confidence * 100).toFixed(3) + "%", tr("lab_" + r.mean.label)],
+    [tr("t_total"), Math.round(r.total.women), Math.round(r.total.men), +(r.total.rel * 100).toFixed(2) + "%", +(r.total.confidence * 100).toFixed(3) + "%", tr("lab_" + r.total.label)]];
   return [[d.name], head, ...rows, ...sum];
 }
 function tsvAll(rs) {

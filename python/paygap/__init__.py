@@ -12,8 +12,10 @@ Measurement):
 * The pay of a group at a level is N * midpoint with uncertainty N * sigma
   (salaries within a band are treated as fully correlated).
 * Level uncertainties are added in quadrature for the totals.
-* Differences are tested with a two-tailed Student t-test,
+* Differences in pay are tested with a two-tailed Student t-test,
   degrees of freedom = N_women + N_men - 2.
+* Per level, women's share is compared with their share of all other staff
+  using a two-sided Fisher's exact test (representation test).
 
 No third-party dependencies: the Student t distribution is computed with the
 regularised incomplete beta function.
@@ -25,7 +27,7 @@ import math
 from dataclasses import dataclass, field, asdict
 from typing import Iterable, Sequence
 
-__all__ = ["Level", "analyze", "t_two_tailed_p", "label_for"]
+__all__ = ["Level", "analyze", "t_two_tailed_p", "fisher_exact_two_sided", "label_for"]
 __version__ = "1.0.0"
 
 DIVISORS = {"triangular": math.sqrt(24), "uniform": math.sqrt(12)}
@@ -82,6 +84,21 @@ def t_two_tailed_p(t: float, dof: float) -> float:
     if dof <= 0 or not math.isfinite(t):
         return float("nan") if not math.isinf(t) else 0.0
     return _betainc(dof / 2.0, 0.5, dof / (dof + t * t))
+
+
+def fisher_exact_two_sided(a: int, b: int, c: int, d: int) -> float:
+    """Two-sided Fisher's exact test p-value for the 2x2 table [[a, b], [c, d]]."""
+    r1, c1, c2, n = a + b, a + c, b + d, a + b + c + d
+    lf = lambda x: math.lgamma(x + 1)
+    base = lf(n) - lf(r1) - lf(n - r1)
+
+    def lp(x):
+        return lf(c1) - lf(x) - lf(c1 - x) + lf(c2) - lf(r1 - x) - lf(c2 - r1 + x) - base
+
+    obs = lp(a)
+    p = sum(math.exp(v) for v in (lp(x) for x in range(max(0, r1 - c2), min(r1, c1) + 1))
+            if v <= obs + 1e-7)
+    return min(1.0, p)
 
 
 def label_for(confidence: float, thresholds: Sequence[float] = DEFAULT_THRESHOLDS) -> str:
@@ -149,6 +166,9 @@ def analyze(levels: Iterable[Level | dict],
     rows = []
     fw = fm = vw = vm = 0.0
     nw = nm = 0
+    W = sum(l.women for l in lv)
+    M = sum(l.men for l in lv)
+    share = W / (W + M) if W + M else float("nan")
     for l in lv:
         if l.max < l.min:
             raise ValueError(f"Level {l.name}: max < min")
@@ -157,16 +177,23 @@ def analyze(levels: Iterable[Level | dict],
         ew, em = l.women * sigma, l.men * sigma
         fw, fm, vw, vm = fw + pw, fm + pm, vw + ew ** 2, vm + em ** 2
         nw, nm = nw + l.women, nm + l.men
-        diff = pw - pm
-        testable = l.women > 0 and l.men > 0
-        res = _test(diff, math.hypot(ew, em), l.women + l.men - 2, thresholds) if testable else \
-            {"diff": diff, "error": math.hypot(ew, em), "t": None, "dof": l.women + l.men - 2,
-             "p": None, "confidence": None, "label": "n/a"}
+        n = l.women + l.men
+        # Representation: women's share at this level vs the rest of staff (Fisher's exact test)
+        testable = 0 < n < W + M and W > 0 and M > 0
+        expected = n * share if n else 0.0
+        res = {"p": None, "confidence": None, "label": "n/a"}
+        if testable:
+            p = fisher_exact_two_sided(l.women, l.men, W - l.women, M - l.men)
+            res = {"p": p, "confidence": 1 - p, "label": label_for(1 - p, thresholds)}
+        rep = None if not testable else ("as_expected" if abs(l.women - expected) < 0.5
+                                          else "under" if l.women < expected else "over")
+        sw = l.women / n if n else None
         rows.append({"level": l.name, "women": l.women, "men": l.men,
                      "midpoint": l.midpoint, "sigma": sigma,
                      "pay_women": pw, "pay_men": pm, "err_women": ew, "err_men": em,
-                     "testable": testable, "rel": _rel(diff, pw, pm, reference), **res,
-                     "favours": None if not testable else ("women" if diff > 0 else "men" if diff < 0 else "parity")})
+                     "testable": testable, "share_women": sw, "share_overall": share,
+                     "share_diff": None if sw is None else sw - share,
+                     "expected_women": expected, "representation": rep, **res})
 
     gw, gm = math.sqrt(vw), math.sqrt(vm)
     dof = nw + nm - 2

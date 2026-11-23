@@ -1,6 +1,7 @@
 const I18N = {
 en: {
   locale: "en-GB",
+  pay_pp: "Pay per person", w_share: "Women's share", vs_all: "vs. overall", women_are: "Women are", pp: "pp", rep_under: "under-represented", rep_over: "over-represented", rep_as_expected: "as expected", v_rep_intro: "Women are {a} of staff.", v_under: "They are significantly under-represented at {levels}.", v_over: "They are significantly over-represented at {levels}.",
   ex_company: "Your Company", ex_dept: "Department {x}",
   app_title: "Pay Gap Estimator",
   app_sub: "Estimate the gender pay gap from salary bands and headcounts. You don't need individual salaries.",
@@ -51,7 +52,7 @@ en: {
   gap: "Gap", conf: "Confidence", tscore: "t-score", dof: "DoF", favours: "Favours",
   fav_women: "women", fav_men: "men", fav_parity: "parity",
   head_ratio: "Headcount ratio M:W", pay_ratio: "Pay ratio M:W", excess: "Men's excess share",
-  per_level: "By level", per_level_d: "Each level tested separately. Levels with only women or only men can't be tested.",
+  per_level: "By level", per_level_d: "Is women's share at each level higher or lower than their share of all staff ({p})? Each level is compared with the rest of staff using Fisher's exact test. Pay within a level is assumed to be the band midpoint, so this shows where a gap in average pay comes from.",
   lvl_pay_w: "Pay women", lvl_pay_m: "Pay men",
   ch_head: "Headcount by level", ch_mean: "Estimated average pay (±1 standard uncertainty)",
   compare_title: "All departments",
@@ -74,6 +75,7 @@ en: {
 <li><strong>Totals.</strong> Pay is summed over levels and uncertainties are added in quadrature: σ<sub>total</sub> = √Σσ²<sub>level</sub>.</li>
 <li><strong>Tests.</strong> Each difference is divided by its combined uncertainty to give a Student t-score, with degrees of freedom = N<sub>women</sub> + N<sub>men</sub> − 2. The two-tailed p-value is the probability of reaching the wrong conclusion (Type I error). Confidence = 1 − p.</li>
 <li><strong>Pay share vs headcount.</strong> The ratio of men's to women's total pay is compared with the ratio of their headcounts. If men's share of pay is larger than their share of headcount, men are paid more per person.</li>
+<li><strong>Representation by level.</strong> For each level, women's share is compared with their share among all other staff using a two-sided Fisher's exact test, which is reliable even for very small groups. Since everyone at a level is assumed to earn the same midpoint, this shows <em>where</em> a gap in average pay comes from: under-representation in well-paid levels lowers women's average, over-representation raises it.</li>
 </ol>
 <h3>Limits</h3>
 <ul>
@@ -90,6 +92,7 @@ en: {
 },
 es: {
   locale: "es-ES",
+  pay_pp: "Salario por persona", w_share: "Proporción de mujeres", vs_all: "vs. total", women_are: "Las mujeres están", pp: "p.p.", rep_under: "infrarrepresentadas", rep_over: "sobrerrepresentadas", rep_as_expected: "según lo esperado", v_rep_intro: "Las mujeres son el {a} de la plantilla.", v_under: "Están significativamente infrarrepresentadas en {levels}.", v_over: "Están significativamente sobrerrepresentadas en {levels}.",
   ex_company: "Tu empresa", ex_dept: "Departamento {x}",
   app_title: "Estimador de brecha salarial",
   app_sub: "Estima la brecha salarial de género a partir de las bandas salariales y la plantilla, sin necesidad de salarios individuales.",
@@ -140,7 +143,7 @@ es: {
   gap: "Brecha", conf: "Confianza", tscore: "t", dof: "GdL", favours: "Favorece a",
   fav_women: "mujeres", fav_men: "hombres", fav_parity: "paridad",
   head_ratio: "Ratio plantilla H:M", pay_ratio: "Ratio salarial H:M", excess: "Exceso de los hombres",
-  per_level: "Por nivel", per_level_d: "Cada nivel se evalúa por separado. Los niveles con solo mujeres o solo hombres no se pueden evaluar.",
+  per_level: "Por nivel", per_level_d: "¿La proporción de mujeres en cada nivel es mayor o menor que su proporción en toda la plantilla ({p})? Cada nivel se compara con el resto de la plantilla mediante la prueba exacta de Fisher. Dentro de un nivel se supone el salario del punto medio, así que esto muestra de dónde viene una brecha en el salario medio.",
   lvl_pay_w: "Salario mujeres", lvl_pay_m: "Salario hombres",
   ch_head: "Plantilla por nivel", ch_mean: "Salario medio estimado (±1 incertidumbre típica)",
   compare_title: "Todos los departamentos",
@@ -163,6 +166,7 @@ es: {
 <li><strong>Totales.</strong> Se suman los salarios de los niveles y las incertidumbres se combinan en cuadratura: σ<sub>total</sub> = √Σσ²<sub>nivel</sub>.</li>
 <li><strong>Pruebas.</strong> Cada diferencia se divide entre su incertidumbre combinada para obtener una t de Student, con grados de libertad = N<sub>mujeres</sub> + N<sub>hombres</sub> − 2. El valor p bilateral es la probabilidad de llegar a una conclusión errónea (error de tipo I); confianza = 1 − p.</li>
 <li><strong>Reparto salarial vs plantilla.</strong> Se compara el cociente entre la masa salarial de hombres y mujeres con el cociente de su número. Si los hombres reciben una parte mayor del salario que su parte de la plantilla, cobran más por persona.</li>
+<li><strong>Representación por nivel.</strong> En cada nivel, la proporción de mujeres se compara con su proporción en el resto de la plantilla mediante la prueba exacta de Fisher bilateral, fiable incluso con grupos muy pequeños. Como se supone que todas las personas de un nivel cobran el mismo punto medio, esto muestra <em>de dónde</em> viene una brecha en el salario medio: la infrarrepresentación en niveles bien pagados baja la media de las mujeres y la sobrerrepresentación la sube.</li>
 </ol>
 <h3>Limitaciones</h3>
 <ul>
@@ -179,6 +183,7 @@ es: {
 },
 ca: {
   locale: "ca-ES",
+  pay_pp: "Salari per persona", w_share: "Proporció de dones", vs_all: "vs. total", women_are: "Les dones estan", pp: "p.p.", rep_under: "infrarepresentades", rep_over: "sobrerepresentades", rep_as_expected: "segons l'esperat", v_rep_intro: "Les dones són el {a} de la plantilla.", v_under: "Estan significativament infrarepresentades a {levels}.", v_over: "Estan significativament sobrerepresentades a {levels}.",
   ex_company: "La teva empresa", ex_dept: "Departament {x}",
   app_title: "Estimador de bretxa salarial",
   app_sub: "Estima la bretxa salarial de gènere a partir de les bandes salarials i la plantilla, sense necessitat de salaris individuals.",
@@ -229,7 +234,7 @@ ca: {
   gap: "Bretxa", conf: "Confiança", tscore: "t", dof: "GdL", favours: "Afavoreix",
   fav_women: "dones", fav_men: "homes", fav_parity: "paritat",
   head_ratio: "Ràtio plantilla H:D", pay_ratio: "Ràtio salarial H:D", excess: "Excés dels homes",
-  per_level: "Per nivell", per_level_d: "Cada nivell s'avalua per separat. Els nivells amb només dones o només homes no es poden avaluar.",
+  per_level: "Per nivell", per_level_d: "La proporció de dones a cada nivell és més alta o més baixa que la seva proporció en tota la plantilla ({p})? Cada nivell es compara amb la resta de la plantilla amb la prova exacta de Fisher. Dins d'un nivell se suposa el salari del punt mitjà, així que això mostra d'on ve una bretxa en el salari mitjà.",
   lvl_pay_w: "Salari dones", lvl_pay_m: "Salari homes",
   ch_head: "Plantilla per nivell", ch_mean: "Salari mitjà estimat (±1 incertesa típica)",
   compare_title: "Tots els departaments",
@@ -252,6 +257,7 @@ ca: {
 <li><strong>Totals.</strong> Se sumen els salaris dels nivells i les incerteses es combinen en quadratura: σ<sub>total</sub> = √Σσ²<sub>nivell</sub>.</li>
 <li><strong>Proves.</strong> Cada diferència es divideix per la seva incertesa combinada per obtenir una t de Student, amb graus de llibertat = N<sub>dones</sub> + N<sub>homes</sub> − 2. El valor p bilateral és la probabilitat d'arribar a una conclusió errònia (error de tipus I); confiança = 1 − p.</li>
 <li><strong>Repartiment salarial vs plantilla.</strong> Es compara el quocient entre la massa salarial d'homes i dones amb el quocient del seu nombre. Si els homes reben una part del salari més gran que la seva part de la plantilla, cobren més per persona.</li>
+<li><strong>Representació per nivell.</strong> A cada nivell, la proporció de dones es compara amb la seva proporció en la resta de la plantilla amb la prova exacta de Fisher bilateral, fiable fins i tot amb grups molt petits. Com que se suposa que totes les persones d'un nivell cobren el mateix punt mitjà, això mostra <em>d'on</em> ve una bretxa en el salari mitjà: la infrarepresentació en nivells ben pagats abaixa la mitjana de les dones i la sobrerepresentació l'apuja.</li>
 </ol>
 <h3>Limitacions</h3>
 <ul>
@@ -268,6 +274,7 @@ ca: {
 },
 de: {
   locale: "de-DE",
+  pay_pp: "Gehalt pro Person", w_share: "Frauenanteil", vs_all: "vs. gesamt", women_are: "Frauen sind", pp: "Pp.", rep_under: "unterrepräsentiert", rep_over: "überrepräsentiert", rep_as_expected: "wie erwartet", v_rep_intro: "Frauen machen {a} des Personals aus.", v_under: "Sie sind signifikant unterrepräsentiert in {levels}.", v_over: "Sie sind signifikant überrepräsentiert in {levels}.",
   ex_company: "Ihr Unternehmen", ex_dept: "Abteilung {x}",
   app_title: "Entgeltlücken-Schätzer",
   app_sub: "Schätzt die geschlechtsspezifische Entgeltlücke anhand von Gehaltsbändern und Personalzahlen. Einzelgehälter sind nicht nötig.",
@@ -318,7 +325,7 @@ de: {
   gap: "Lücke", conf: "Konfidenz", tscore: "t-Wert", dof: "FG", favours: "Zugunsten von",
   fav_women: "Frauen", fav_men: "Männern", fav_parity: "Parität",
   head_ratio: "Personalverhältnis M:F", pay_ratio: "Gehaltsverhältnis M:F", excess: "Mehranteil der Männer",
-  per_level: "Nach Stufe", per_level_d: "Jede Stufe wird einzeln getestet. Stufen mit nur Frauen oder nur Männern lassen sich nicht testen.",
+  per_level: "Nach Stufe", per_level_d: "Ist der Frauenanteil auf jeder Stufe höher oder niedriger als ihr Anteil am gesamten Personal ({p})? Jede Stufe wird mit Fishers exaktem Test mit dem übrigen Personal verglichen. Innerhalb einer Stufe wird die Bandmitte als Gehalt angenommen; daher zeigt dies, woher eine Lücke beim Durchschnittsgehalt kommt.",
   lvl_pay_w: "Gehalt Frauen", lvl_pay_m: "Gehalt Männer",
   ch_head: "Personal nach Stufe", ch_mean: "Geschätztes Durchschnittsgehalt (±1 Standardunsicherheit)",
   compare_title: "Alle Abteilungen",
@@ -341,6 +348,7 @@ de: {
 <li><strong>Summen.</strong> Die Gehälter werden über die Stufen addiert, die Unsicherheiten quadratisch kombiniert: σ<sub>gesamt</sub> = √Σσ²<sub>Stufe</sub>.</li>
 <li><strong>Tests.</strong> Jeder Unterschied wird durch seine kombinierte Unsicherheit geteilt. Das ergibt einen Student-t-Wert mit Freiheitsgraden = N<sub>Frauen</sub> + N<sub>Männer</sub> − 2. Der zweiseitige p-Wert ist die Wahrscheinlichkeit eines Fehlschlusses (Fehler 1. Art). Konfidenz = 1 − p.</li>
 <li><strong>Gehaltsanteil vs. Personalanteil.</strong> Das Verhältnis der Gesamtvergütung von Männern zu Frauen wird mit dem Verhältnis ihrer Personalzahlen verglichen. Ist der Gehaltsanteil der Männer größer als ihr Personalanteil, verdienen sie pro Kopf mehr.</li>
+<li><strong>Vertretung nach Stufe.</strong> Für jede Stufe wird der Frauenanteil mit ihrem Anteil am übrigen Personal verglichen, mit dem zweiseitigen exakten Test nach Fisher, der auch bei sehr kleinen Gruppen zuverlässig ist. Da für alle Personen einer Stufe dieselbe Bandmitte angenommen wird, zeigt dies, <em>woher</em> eine Lücke beim Durchschnittsgehalt kommt: Unterrepräsentation in gut bezahlten Stufen senkt den Durchschnitt der Frauen, Überrepräsentation hebt ihn.</li>
 </ol>
 <h3>Grenzen</h3>
 <ul>

@@ -112,6 +112,7 @@ svg .lbl{fill:var(--ink2);font-size:12px}
 @media print{ nav.tabs,.lang,.whatif,button{display:none!important} .card{break-inside:avoid} }
 .method a{color:var(--accent)}
 .method ol.src li{font-size:14px}
+.verdict p.note{font-size:15px;color:var(--ink2);border-left:3px solid var(--axis);padding:2px 0 2px 12px;margin:10px 0}
 </style></head>
 <body><div class="wrap" id="app"></div>
 <script>// ---- Pay gap calculations (mirror of python/paygap/__init__.py) ----
@@ -242,6 +243,9 @@ if (typeof module !== "undefined") module.exports = PayGap;
 <script>const I18N = {
 en: {
   locale: "en-GB",
+  v_min_w: "Women are only {a} of staff ({r} men for every woman). Even where pay per person is equal, being so under-represented can mean that women are more easily overlooked or not heard, for example in meetings and decisions, and it can cause psychological strain such as stress, isolation or pressure to fit in. This pay analysis can't measure those effects.",
+  v_min_m: "Men are only {a} of staff ({r} women for every man). Even where pay per person is equal, being so under-represented can mean that men are more easily overlooked or not heard, for example in meetings and decisions, and it can cause psychological strain such as stress, isolation or pressure to fit in. This pay analysis can't measure those effects.",
+  ex_depts: ["A · Glass ceiling", "B · Sticky floor", "C · Balanced", "D · Few women, fair pay", "E · Extreme imbalance"],
   pay_pp: "Pay per person", w_share: "Women's share", vs_all: "vs. overall", women_are: "Women are", pp: "pp", rep_under: "under-represented", rep_over: "over-represented", rep_as_expected: "as expected", v_rep_intro: "Women are {a} of staff.", v_under: "They are significantly under-represented at {levels}.", v_over: "They are significantly over-represented at {levels}.",
   ex_company: "Your Company", ex_dept: "Department {x}",
   app_title: "Pay Gap Estimator",
@@ -323,6 +327,7 @@ en: {
 <li>Average pay here is an estimate based on band midpoints. It can only show a gap caused by how women and men are spread across levels, not differences in pay within a band.</li>
 <li>Small groups (fewer than ~5 people) give unreliable results and may make individuals identifiable.</li>
 <li>Statistical significance isn't proof of discrimination. It shows the difference is unlikely to be due to chance under these assumptions.</li>
+<li>The analysis only looks at pay. A strong headcount imbalance (e.g. fewer than about 30% women, a common rule of thumb for a "critical mass") is worth noting even when pay per person is equal. The under-represented group can be more easily overlooked or not heard, for example in meetings and decisions, and can experience psychological strain such as stress, isolation or pressure to fit in. Salary data can't show these effects.</li>
 </ul>
 <h3>Sources</h3>
 <ol class="src">
@@ -333,6 +338,9 @@ en: {
 },
 es: {
   locale: "es-ES",
+  v_min_w: "Las mujeres son solo el {a} de la plantilla ({r} hombres por cada mujer). Aunque el salario por persona sea igual, estar tan infrarrepresentadas puede hacer que se las pase por alto o no se las escuche, por ejemplo en reuniones y decisiones, y puede causar una carga psicológica como estrés, aislamiento o presión para encajar. Este análisis salarial no puede medir esos efectos.",
+  v_min_m: "Los hombres son solo el {a} de la plantilla ({r} mujeres por cada hombre). Aunque el salario por persona sea igual, estar tan infrarrepresentados puede hacer que se los pase por alto o no se los escuche, por ejemplo en reuniones y decisiones, y puede causar una carga psicológica como estrés, aislamiento o presión para encajar. Este análisis salarial no puede medir esos efectos.",
+  ex_depts: ["A · Techo de cristal", "B · Suelo pegajoso", "C · Equilibrado", "D · Pocas mujeres, salario justo", "E · Desequilibrio extremo"],
   pay_pp: "Salario por persona", w_share: "Proporción de mujeres", vs_all: "vs. total", women_are: "Las mujeres están", pp: "p.p.", rep_under: "infrarrepresentadas", rep_over: "sobrerrepresentadas", rep_as_expected: "según lo esperado", v_rep_intro: "Las mujeres son el {a} de la plantilla.", v_under: "Están significativamente infrarrepresentadas en {levels}.", v_over: "Están significativamente sobrerrepresentadas en {levels}.",
   ex_company: "Tu empresa", ex_dept: "Departamento {x}",
   app_title: "Estimador de brecha salarial",
@@ -414,6 +422,7 @@ es: {
 <li>El salario medio es una estimación a partir de los puntos medios: solo puede detectar brechas debidas a cómo se reparten mujeres y hombres entre los niveles, no diferencias dentro de una misma banda.</li>
 <li>Los grupos pequeños (menos de ~5 personas) dan resultados poco fiables y pueden permitir identificar a personas.</li>
 <li>Que una diferencia sea estadísticamente significativa no prueba discriminación: indica que, con estos supuestos, es poco probable que se deba al azar.</li>
+<li>El análisis solo examina el salario. Un fuerte desequilibrio en la plantilla (p. ej., menos de un 30 % de mujeres, una regla habitual de «masa crítica») merece señalarse aunque el salario por persona sea igual. Al grupo infrarrepresentado se le puede pasar por alto o no escuchar, por ejemplo en reuniones y decisiones, y puede sufrir una carga psicológica como estrés, aislamiento o presión para encajar. Los datos salariales no muestran esos efectos.</li>
 </ul>
 <h3>Fuentes</h3>
 <ol class="src">
@@ -424,6 +433,9 @@ es: {
 },
 ca: {
   locale: "ca-ES",
+  v_min_w: "Les dones són només el {a} de la plantilla ({r} homes per cada dona). Encara que el salari per persona sigui igual, estar tan infrarepresentades pot fer que se les passi per alt o no se les escolti, per exemple en reunions i decisions, i pot causar una càrrega psicològica com estrès, aïllament o pressió per encaixar. Aquesta anàlisi salarial no pot mesurar aquests efectes.",
+  v_min_m: "Els homes són només el {a} de la plantilla ({r} dones per cada home). Encara que el salari per persona sigui igual, estar tan infrarepresentats pot fer que se'ls passi per alt o no se'ls escolti, per exemple en reunions i decisions, i pot causar una càrrega psicològica com estrès, aïllament o pressió per encaixar. Aquesta anàlisi salarial no pot mesurar aquests efectes.",
+  ex_depts: ["A · Sostre de vidre", "B · Terra enganxós", "C · Equilibrat", "D · Poques dones, salari just", "E · Desequilibri extrem"],
   pay_pp: "Salari per persona", w_share: "Proporció de dones", vs_all: "vs. total", women_are: "Les dones estan", pp: "p.p.", rep_under: "infrarepresentades", rep_over: "sobrerepresentades", rep_as_expected: "segons l'esperat", v_rep_intro: "Les dones són el {a} de la plantilla.", v_under: "Estan significativament infrarepresentades a {levels}.", v_over: "Estan significativament sobrerepresentades a {levels}.",
   ex_company: "La teva empresa", ex_dept: "Departament {x}",
   app_title: "Estimador de bretxa salarial",
@@ -505,6 +517,7 @@ ca: {
 <li>El salari mitjà és una estimació a partir dels punts mitjans: només pot detectar bretxes degudes a com es reparteixen dones i homes entre els nivells, no diferències dins d'una mateixa banda.</li>
 <li>Els grups petits (menys de ~5 persones) donen resultats poc fiables i poden permetre identificar persones.</li>
 <li>Que una diferència sigui estadísticament significativa no prova discriminació: indica que, amb aquests supòsits, és poc probable que sigui fruit de l'atzar.</li>
+<li>L'anàlisi només examina el salari. Un fort desequilibri a la plantilla (p. ex., menys d'un 30 % de dones, una regla habitual de «massa crítica») val la pena assenyalar-lo encara que el salari per persona sigui igual. El grup infrarepresentat pot passar desapercebut o no ser escoltat, per exemple en reunions i decisions, i pot patir una càrrega psicològica com estrès, aïllament o pressió per encaixar. Les dades salarials no mostren aquests efectes.</li>
 </ul>
 <h3>Fonts</h3>
 <ol class="src">
@@ -515,6 +528,9 @@ ca: {
 },
 de: {
   locale: "de-DE",
+  v_min_w: "Frauen machen nur {a} des Personals aus ({r} Männer pro Frau). Selbst wenn das Gehalt pro Person gleich ist, kann eine so starke Unterrepräsentation dazu führen, dass Frauen leichter übersehen oder nicht gehört werden, etwa in Besprechungen und bei Entscheidungen, und sie kann psychisch belasten, z. B. durch Stress, Isolation oder Anpassungsdruck. Diese Gehaltsanalyse kann solche Effekte nicht messen.",
+  v_min_m: "Männer machen nur {a} des Personals aus ({r} Frauen pro Mann). Selbst wenn das Gehalt pro Person gleich ist, kann eine so starke Unterrepräsentation dazu führen, dass Männer leichter übersehen oder nicht gehört werden, etwa in Besprechungen und bei Entscheidungen, und sie kann psychisch belasten, z. B. durch Stress, Isolation oder Anpassungsdruck. Diese Gehaltsanalyse kann solche Effekte nicht messen.",
+  ex_depts: ["A · Gläserne Decke", "B · Klebriger Boden", "C · Ausgewogen", "D · Wenige Frauen, faire Bezahlung", "E · Extremes Ungleichgewicht"],
   pay_pp: "Gehalt pro Person", w_share: "Frauenanteil", vs_all: "vs. gesamt", women_are: "Frauen sind", pp: "Pp.", rep_under: "unterrepräsentiert", rep_over: "überrepräsentiert", rep_as_expected: "wie erwartet", v_rep_intro: "Frauen machen {a} des Personals aus.", v_under: "Sie sind signifikant unterrepräsentiert in {levels}.", v_over: "Sie sind signifikant überrepräsentiert in {levels}.",
   ex_company: "Ihr Unternehmen", ex_dept: "Abteilung {x}",
   app_title: "Entgeltlücken-Schätzer",
@@ -596,6 +612,7 @@ de: {
 <li>Das Durchschnittsgehalt ist eine Schätzung auf Basis der Bandmitten. Es zeigt nur Lücken, die durch die Verteilung von Frauen und Männern auf die Stufen entstehen, nicht Unterschiede innerhalb eines Bandes.</li>
 <li>Kleine Gruppen (unter ~5 Personen) liefern unzuverlässige Ergebnisse und können einzelne Personen erkennbar machen.</li>
 <li>Statistische Signifikanz ist kein Beweis für Diskriminierung. Sie zeigt nur, dass der Unterschied unter diesen Annahmen wahrscheinlich nicht zufällig ist.</li>
+<li>Die Analyse betrachtet nur das Gehalt. Ein starkes Ungleichgewicht beim Personal (z. B. weniger als etwa 30 % Frauen, eine gängige Faustregel für eine „kritische Masse“) ist auch bei gleichem Gehalt pro Person erwähnenswert. Die unterrepräsentierte Gruppe kann leichter übersehen oder nicht gehört werden, etwa in Besprechungen und bei Entscheidungen, und psychisch belastet sein, z. B. durch Stress, Isolation oder Anpassungsdruck. Gehaltsdaten zeigen solche Effekte nicht.</li>
 </ul>
 <h3>Quellen</h3>
 <ol class="src">
@@ -613,29 +630,35 @@ const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 // ---------- state ----------
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 function example() {
   const lang = state ? state.lang : detectLang(), T = I18N[lang];
-  const dn = x => T.ex_dept.replace("{x}", x);
+  const lv = i => T.level + " " + ROMAN[i];
+  // Invented example data: four departments with different gender patterns
   return {
     v: 1, lang,
     org: T.ex_company, year: new Date().getFullYear(), currency: "EUR",
     distribution: "triangular", reference: "mean", thresholds: [0.99, 0.95, 0.90],
     levels: [
-      { name: "R1", min: 18522, max: 25189, mid: 21856 },
-      { name: "R2", min: 27522, max: 45622, mid: 36572 },
-      { name: "R3", min: 39677, max: 63250, mid: 51464 },
-      { name: "R4", min: 55000, max: 88555, mid: 71778 }],
+      { name: lv(0), min: 20000, max: 26000, mid: "" },
+      { name: lv(1), min: 27000, max: 36000, mid: "" },
+      { name: lv(2), min: 34000, max: 46000, mid: "" },
+      { name: lv(3), min: 43000, max: 57000, mid: "" },
+      { name: lv(4), min: 55000, max: 70000, mid: "" },
+      { name: lv(5), min: 70000, max: 90000, mid: "" }],
     depts: [
-      { name: dn("A"), w: [4, 8, 0, 0], m: [3, 8, 3, 2] },
-      { name: dn("B"), w: [4, 8, 1, 0], m: [15, 15, 5, 2] },
-      { name: dn("C"), w: [21, 37, 7, 1], m: [41, 37, 16, 7] }],
+      { name: T.ex_depts[0], w: [180, 160, 110, 40, 12, 3], m: [150, 170, 180, 140, 85, 40] },
+      { name: T.ex_depts[1], w: [520, 140, 60, 25, 10, 4], m: [110, 150, 190, 120, 60, 25] },
+      { name: T.ex_depts[2], w: [120, 210, 280, 60, 22, 8], m: [125, 205, 285, 58, 23, 8] },
+      { name: T.ex_depts[3], w: [20, 30, 40, 10, 3, 1], m: [120, 180, 240, 60, 18, 6] },
+      { name: T.ex_depts[4], w: [400, 80, 15, 3, 1, 0], m: [60, 120, 200, 180, 120, 60] }],
     active: 0
   };
 }
 function blank() {
   return { v: 1, lang: state.lang, org: "", year: new Date().getFullYear(), currency: "EUR",
     distribution: "triangular", reference: "mean", thresholds: [0.99, 0.95, 0.90],
-    levels: [{ name: "1", min: "", max: "", mid: "" }, { name: "2", min: "", max: "", mid: "" }, { name: "3", min: "", max: "", mid: "" }],
+    levels: [0, 1, 2].map(i => ({ name: tr("level") + " " + ROMAN[i], min: "", max: "", mid: "" })),
     depts: [{ name: tr("new_dept"), w: [0, 0, 0], m: [0, 0, 0] }], active: 0 };
 }
 function detectLang() {
@@ -644,12 +667,9 @@ function detectLang() {
 }
 let state = null;
 try { const s = JSON.parse(localStorage.getItem(STORE)); if (valid(s)) state = s; } catch (e) {}
+// Replace the first version's four-level example (R1-R4) with the current example
+if (state && state.levels.map(l => l.name).join() === "R1,R2,R3,R4") state = null;
 if (!state) state = example();
-else {
-  const ren = { CVC: "A", CES: "B", "Earth Science": "C" };
-  state.depts.forEach(d => { if (ren[d.name]) d.name = I18N[state.lang || "en"].ex_dept.replace("{x}", ren[d.name]); });
-  if (state.org === "Example") state.org = I18N[state.lang || "en"].ex_company;
-}
 function valid(s) { return s && Array.isArray(s.levels) && Array.isArray(s.depts) && s.depts.every(d => Array.isArray(d.w) && Array.isArray(d.m)); }
 function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} }
 function normalize() {
@@ -718,8 +738,16 @@ function relabelExample(to) {
   if (langs.some(l => I18N[l].ex_company === state.org)) state.org = T.ex_company;
   state.depts.forEach(d => {
     for (const l of langs) {
+      const k = I18N[l].ex_depts.indexOf(d.name);
+      if (k >= 0) { d.name = T.ex_depts[k]; break; }
       const m = d.name.match(new RegExp("^" + I18N[l].ex_dept.replace("{x}", "([A-Z])") + "$"));
       if (m) { d.name = T.ex_dept.replace("{x}", m[1]); break; }
+    }
+  });
+  state.levels.forEach(lv => {
+    for (const l of langs) {
+      const m = lv.name.match(new RegExp("^" + I18N[l].level + " ([IVX]+)$"));
+      if (m) { lv.name = T.level + " " + m[1]; break; }
     }
   });
 }
@@ -801,7 +829,7 @@ function viewBands(v) {
     <div class="row" style="margin-top:10px"><button class="b" id="add">${esc(tr("add_level"))}</button></div>
   </section>
   <section class="card"><h2>${esc(tr("paste_title"))}</h2><p class="help">${esc(tr("paste_help"))}</p>
-    <textarea id="paste" rows="5" style="width:100%" placeholder="R1&#9;18522&#9;25189&#10;R2&#9;27522&#9;45622"></textarea>
+    <textarea id="paste" rows="5" style="width:100%" placeholder="Level I&#9;20000&#9;26000&#10;Level II&#9;27000&#9;36000"></textarea>
     <div class="row" style="margin-top:8px"><button class="b primary" id="doPaste">${esc(tr("apply"))}</button></div>
   </section>`;
   const warn = () => {
@@ -831,7 +859,7 @@ function viewBands(v) {
   });
   $("#add").onclick = () => {
     const last = state.levels[state.levels.length - 1];
-    state.levels.push({ name: String(state.levels.length + 1), min: last && last.max !== "" ? last.max : "", max: "", mid: "" });
+    state.levels.push({ name: tr("level") + " " + (ROMAN[state.levels.length] || state.levels.length + 1), min: last && last.max !== "" ? last.max : "", max: "", mid: "" });
     normalize(); save(); render();
   };
   $("#doPaste").onclick = () => {
@@ -925,9 +953,10 @@ function viewResults(v) {
 
 function verdictHTML(r) {
   const m = r.mean, parts = [];
-  if (Math.abs(m.diff) < 0.5) parts.push(tr("v_equal"));
+  const same = Math.abs(m.diff) < 0.5;
+  if (same) parts.push(tr("v_equal"));
   else parts.push(tr(m.diff < 0 ? "v_lower" : "v_higher", { pct: pct(Math.abs(m.rel)) }));
-  if (m.label === "HiSig" || m.label === "Sig") parts.push(tr("v_sig", { label: tr("lab_" + m.label), conf: conf(m.confidence) }));
+  if (same) { /* nothing to test */ } else if (m.label === "HiSig" || m.label === "Sig") parts.push(tr("v_sig", { label: tr("lab_" + m.label), conf: conf(m.confidence) }));
   else if (m.label === "MidSig") parts.push(tr("v_mid", { conf: conf(m.confidence) }));
   else if (m.label === "NotSig") parts.push(tr("v_not", { conf: conf(m.confidence) }));
   let html = `<p><strong>${esc(parts[0])}</strong> ${esc(parts.slice(1).join(" "))}</p>`;
@@ -939,6 +968,10 @@ function verdictHTML(r) {
   if (under) reps.push(tr("v_under", { levels: under }));
   if (over) reps.push(tr("v_over", { levels: over }));
   if (reps.length) html += `<p>${esc(tr("v_rep_intro", { a: pct(r.women / (r.women + r.men), 0) }))} ${esc(reps.join(" "))}</p>`;
+  // strong headcount imbalance: pay data can't show its other effects
+  const wShare = r.women / (r.women + r.men);
+  if (wShare < 0.3) html += `<p class="note">${esc(tr("v_min_w", { a: pct(wShare, 0), r: num(r.men / r.women, 1) }))}</p>`;
+  else if (wShare > 0.7) html += `<p class="note">${esc(tr("v_min_m", { a: pct(1 - wShare, 0), r: num(r.women / r.men, 1) }))}</p>`;
   if (r.men !== r.women && Math.abs(r.total.rel) > Math.abs(m.rel) + 0.02) html += `<p class="help" style="margin:0">${esc(tr("v_total", { pct: pct(Math.abs(r.total.rel)), r: num(Math.max(r.men, r.women) / Math.min(r.men, r.women), 1) }))}</p>`;
   return html;
 }
@@ -1060,7 +1093,7 @@ function chartHeadcount(el, r) {
   el.innerHTML = s; bindTips(el.querySelector("svg"));
 }
 function chartMeans(el, items) {
-  const rowH = items.length === 1 ? 80 : 46, W = Math.max(300, Math.round(el.clientWidth) || 460), L = 110, R = 16, T = 8, B = 26, H = T + B + rowH * items.length;
+  const rowH = items.length === 1 ? 80 : 46, W = Math.max(300, Math.round(el.clientWidth) || 460), L = 160, R = 16, T = 8, B = 26, H = T + B + rowH * items.length;
   let lo = Infinity, hi = -Infinity;
   items.forEach(({ r }) => { [["women", "err_women"], ["men", "err_men"]].forEach(([a, e]) => { lo = Math.min(lo, r.mean[a] - r.mean[e]); hi = Math.max(hi, r.mean[a] + r.mean[e]); }); });
   const pad = (hi - lo) * 0.1 || 1000; lo = Math.max(0, lo - pad); hi = hi + pad;
@@ -1071,7 +1104,7 @@ function chartMeans(el, items) {
   for (let v = lo; v <= hi + 1e-6; v += step) s += `<line x1="${x(v)}" x2="${x(v)}" y1="${T}" y2="${H - B}" stroke="var(--grid)"/><text x="${x(v)}" y="${H - 8}" text-anchor="middle">${new Intl.NumberFormat(loc(), { notation: "compact", maximumFractionDigits: 1 }).format(v)}</text>`;
   items.forEach(({ name, r }, i) => {
     const cy = T + rowH * i + rowH / 2;
-    s += `<text class="lbl" x="${L - 10}" y="${cy + 4}" text-anchor="end">${esc(name.length > 15 ? name.slice(0, 14) + "…" : name)}</text>`;
+    s += `<text class="lbl" x="${L - 10}" y="${cy + 4}" text-anchor="end">${esc(name.length > 24 ? name.slice(0, 23) + "…" : name)}</text>`;
     [["women", "err_women", "var(--w)", -7], ["men", "err_men", "var(--m)", 7]].forEach(([a, e, c, dy]) => {
       const v = r.mean[a], er = r.mean[e], yy = cy + dy;
       const t_ = `<b>${esc(name)} · ${esc(tr(a))}</b><br>${money(v)} ± ${money(er)}`;

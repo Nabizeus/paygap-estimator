@@ -5,7 +5,8 @@
   color-scheme: light;
   --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
   --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10); --hover:rgba(11,11,11,.04);
-  --w:#3aa36a; --m:#a06a2a; --accent:#2a78d6; --warn-bg:#fff6e0; --warn-ink:#6b4a00;
+  --w:#3aa36a; --m:#a06a2a; --accent:#2a78d6; --pos:#2a78d6; --neg:#e34948; --good:#0a8f0a; --bad:#d03b3b;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --s7:#6250d6; --s8:#e34948; --warn-bg:#fff6e0; --warn-ink:#6b4a00;
   --err:#d03b3b;
 }
 @media (prefers-color-scheme: dark){
@@ -13,14 +14,16 @@
     color-scheme: dark;
     --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
     --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --hover:rgba(255,255,255,.05);
-    --w:#3aa36a; --m:#a06a2a; --accent:#3987e5; --warn-bg:#2e2510; --warn-ink:#f3d58a;
+    --w:#3aa36a; --m:#a06a2a; --accent:#3987e5; --pos:#3987e5; --neg:#e66767; --good:#0ca30c; --bad:#e66767;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#0ca30c; --s7:#9085e9; --s8:#e66767; --warn-bg:#2e2510; --warn-ink:#f3d58a;
   }
 }
 :root[data-theme="dark"]{
   color-scheme: dark;
   --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
   --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --hover:rgba(255,255,255,.05);
-  --w:#3aa36a; --m:#a06a2a; --accent:#3987e5; --warn-bg:#2e2510; --warn-ink:#f3d58a;
+  --w:#3aa36a; --m:#a06a2a; --accent:#3987e5; --pos:#3987e5; --neg:#e66767; --good:#0ca30c; --bad:#e66767;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#0ca30c; --s7:#9085e9; --s8:#e66767; --warn-bg:#2e2510; --warn-ink:#f3d58a;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--page);color:var(--ink);
@@ -113,6 +116,17 @@ svg .lbl{fill:var(--ink2);font-size:12px}
 .method a{color:var(--accent)}
 .method ol.src li{font-size:14px}
 .verdict p.note{font-size:15px;color:var(--ink2);border-left:3px solid var(--axis);padding:2px 0 2px 12px;margin:10px 0}
+.heat{display:grid;gap:3px;font-size:13px;font-variant-numeric:tabular-nums}
+.heat .hd{text-align:center;color:var(--muted);font-size:12px;padding:2px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.heat .rl{display:flex;flex-direction:column;justify-content:center;padding-right:8px;min-width:0}
+.heat .rl span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.heat .c{border-radius:4px;text-align:center;padding:10px 2px;background:var(--hover);color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin:8px 0 14px}
+.tile{background:var(--hover);border-radius:8px;padding:10px 12px}
+.tile .k{font-size:12px;color:var(--ink2)} .tile .v{font-size:22px;font-weight:650;font-variant-numeric:tabular-nums}
+.tile .s{font-size:11px;color:var(--muted)}
+.flag{font-size:14px;font-weight:600;margin-top:4px}
+.legend span[style*="--hover"]::before{border:1px solid var(--axis)}
 </style></head>
 <body><div class="wrap" id="app"></div>
 <script>// ---- Pay gap calculations (mirror of python/paygap/__init__.py) ----
@@ -191,6 +205,33 @@ const PayGap = (() => {
     for (let x = lo; x <= hi; x++) { const v = lp(x); if (v <= obs + 1e-7) p += Math.exp(v); }
     return Math.min(1, p);
   }
+  // EU Pay Transparency style indicators, estimated from band midpoints:
+  // mean and median gap relative to men's pay, and women's share per pay quartile.
+  function euIndicators(rows, W, M, aw, am) {
+    const sorted = rows.filter(r => r.women + r.men > 0).slice().sort((a, b) => a.midpoint - b.midpoint);
+    const median = key => {
+      const tot = sorted.reduce((a, r) => a + r[key], 0);
+      if (!tot) return NaN;
+      const half = (tot + 1) / 2; let acc = 0;
+      for (const r of sorted) { acc += r[key]; if (acc >= half) return r.midpoint; }
+      return NaN;
+    };
+    const mw = median("women"), mm = median("men");
+    const N = W + M, q = [[0, 0], [0, 0], [0, 0], [0, 0]];
+    let pos = 0;
+    for (const r of sorted) {
+      const n = r.women + r.men;
+      for (let k = 0; k < 4; k++) {
+        const ov = Math.max(0, Math.min(pos + n, (k + 1) * N / 4) - Math.max(pos, k * N / 4));
+        q[k][0] += ov * r.women / n; q[k][1] += ov * r.men / n;
+      }
+      pos += n;
+    }
+    const meanGap = am ? (aw - am) / am : NaN, medianGap = mm ? (mw - mm) / mm : NaN;
+    return { mean_gap: meanGap, median_gap: medianGap, median_women: mw, median_men: mm,
+      quartiles: q.map(([w, m]) => ({ women: w, men: m, share_women: w + m ? w / (w + m) : NaN })),
+      above_threshold: Math.abs(meanGap) >= 0.05 || Math.abs(medianGap) >= 0.05 };
+  }
   const mid = l => (l.mid != null && l.mid !== "" && isFinite(+l.mid)) ? +l.mid : (+l.min + +l.max) / 2;
 
   /** levels: [{name,min,max,mid?}], women:[n], men:[n] */
@@ -234,7 +275,10 @@ const PayGap = (() => {
     const rerr = fw && fm ? pr * Math.sqrt((gw / fw) ** 2 + (gm / fm) ** 2) : 0;
     const ratio = test(hr - pr, rerr, dof, th);
     Object.assign(ratio, { headcount_ratio: hr, pay_ratio: pr, excess: pr / hr - 1 });
-    return Object.assign(out, { total, mean, ratio });
+    // Where the gap comes from: each level's contribution to (women's average - men's average)
+    rows.forEach(r => { r.contribution = r.midpoint * (r.women / nw - r.men / nm); });
+    const eu = euIndicators(rows, nw, nm, aw, am);
+    return Object.assign(out, { total, mean, ratio, eu });
   }
   return { analyze, tP, label, mid, fisher };
 })();
@@ -243,6 +287,30 @@ if (typeof module !== "undefined") module.exports = PayGap;
 <script>const I18N = {
 en: {
   locale: "en-GB",
+  ch_pyramid: "Women and men by level",
+  ch_contrib: "Where the gap comes from",
+  ch_contrib_d: "How much each level raises (+) or lowers (−) women's average pay compared with men's. Together the bars add up to the average-pay gap ({gap}).",
+  contrib_up: "Raises women's average",
+  contrib_down: "Lowers women's average",
+  eu_title: "EU pay transparency indicators",
+  eu_d: "Estimated the way reports under the EU Pay Transparency Directive (2023/970) present them: gaps relative to men's pay, and women's share in each pay quartile. Medians and quartiles are estimated from band midpoints.",
+  eu_mean: "Mean gap",
+  eu_median: "Median gap",
+  eu_th: "5% threshold",
+  eu_above: "Above 5%",
+  eu_below: "Below 5%",
+  eu_quart: "Women and men per pay quartile",
+  q1: "Q1 lowest",
+  q4: "Q4 highest",
+  ch_pipe: "Women's share by level",
+  ch_pipe_d: "A flat line means women are equally represented at every level; a falling line means they drop out on the way up.",
+  ch_heat: "Over- and under-representation",
+  ch_heat_d: "Women's share at each level minus their share in the department, in percentage points. Grey cells are not statistically significant.",
+  heat_over: "Women over-represented",
+  heat_under: "Women under-represented",
+  heat_ns: "Not significant",
+  overall_w: "{p} women overall",
+  first8: "Showing the first 8 departments.",
   v_min_w: "Women are only {a} of staff ({r} men for every woman). Even where pay per person is equal, being so under-represented can mean that women are more easily overlooked or not heard, for example in meetings and decisions, and it can cause psychological strain such as stress, isolation or pressure to fit in. This pay analysis can't measure those effects.",
   v_min_m: "Men are only {a} of staff ({r} women for every man). Even where pay per person is equal, being so under-represented can mean that men are more easily overlooked or not heard, for example in meetings and decisions, and it can cause psychological strain such as stress, isolation or pressure to fit in. This pay analysis can't measure those effects.",
   ex_depts: ["A · Glass ceiling", "B · Sticky floor", "C · Balanced", "D · Few women, fair pay", "E · Extreme imbalance"],
@@ -321,6 +389,7 @@ en: {
 <li><strong>Tests.</strong> Each difference is divided by its combined uncertainty to give a Student t-score, with degrees of freedom = N<sub>women</sub> + N<sub>men</sub> − 2. The two-tailed p-value is the probability of reaching the wrong conclusion (Type I error). Confidence = 1 − p.</li>
 <li><strong>Pay share vs headcount.</strong> The ratio of men's to women's total pay is compared with the ratio of their headcounts. If men's share of pay is larger than their share of headcount, men are paid more per person.</li>
 <li><strong>Representation by level.</strong> For each level, women's share is compared with their share among all other staff using a two-sided Fisher's exact test, which is reliable even for very small groups. Since everyone at a level is assumed to earn the same midpoint, this shows <em>where</em> a gap in average pay comes from: under-representation in well-paid levels lowers women's average, over-representation raises it.</li>
+<li><strong>EU pay transparency indicators.</strong> Following the EU Pay Transparency Directive (2023/970), the mean and median gap are also shown relative to men's pay, together with women's share in each pay quartile (all staff sorted by pay and split into four equal groups). A gap of 5% or more is flagged: from that level the Directive requires employers to justify or correct the gap. Here these values are estimated from band midpoints.</li>
 </ol>
 <h3>Limits</h3>
 <ul>
@@ -334,10 +403,35 @@ en: {
 <li><a href="https://doi.org/10.59161/JCGM100-2008E" target="_blank" rel="noopener">JCGM 100:2008 — Evaluation of measurement data: Guide to the expression of uncertainty in measurement (GUM)</a>. Joint Committee for Guides in Metrology / BIPM. The uniform (rectangular) distribution is described in section 4.3.7 and the triangular distribution in section 4.3.9. Free to download from the BIPM website.</li>
 <li><a href="https://www.gik.kit.edu/downloads/%5BSCHW20%5DGUM_AVN_Teil1.pdf" target="_blank" rel="noopener">Schwarz, W. (2020): Methoden zur Bestimmung der Messunsicherheit nach GUM – Teil 1</a>. avn – Allgemeine Vermessungs-Nachrichten 127(2), 69–86. A German-language summary of the GUM method, including the uniform and triangular distributions (p. 75).</li>
 <li><a href="https://www.ttable.org/" target="_blank" rel="noopener">Student's t-distribution table (ttable.org)</a>. Reference table of critical t-values. The app calculates exact two-tailed p-values instead of reading them from a table.</li>
+<li><a href="https://eur-lex.europa.eu/eli/dir/2023/970/oj" target="_blank" rel="noopener">Directive (EU) 2023/970 (Pay Transparency Directive)</a>. EUR-Lex. Indicators for gender pay gap reporting (Article 9).</li>
 </ol>`
 },
 es: {
   locale: "es-ES",
+  ch_pyramid: "Mujeres y hombres por nivel",
+  ch_contrib: "De dónde viene la brecha",
+  ch_contrib_d: "Cuánto sube (+) o baja (−) cada nivel el salario medio de las mujeres respecto al de los hombres. En conjunto, las barras suman la brecha del salario medio ({gap}).",
+  contrib_up: "Sube la media de las mujeres",
+  contrib_down: "Baja la media de las mujeres",
+  eu_title: "Indicadores de transparencia salarial de la UE",
+  eu_d: "Estimados como se presentan en los informes de la Directiva de transparencia salarial de la UE (2023/970): brechas respecto al salario de los hombres y proporción de mujeres en cada cuartil salarial. Medianas y cuartiles se estiman a partir de los puntos medios.",
+  eu_mean: "Brecha media",
+  eu_median: "Brecha mediana",
+  eu_th: "Umbral del 5 %",
+  eu_above: "Por encima del 5 %",
+  eu_below: "Por debajo del 5 %",
+  eu_quart: "Mujeres y hombres por cuartil salarial",
+  q1: "Q1 más bajo",
+  q4: "Q4 más alto",
+  ch_pipe: "Proporción de mujeres por nivel",
+  ch_pipe_d: "Una línea plana significa que las mujeres están igual de representadas en todos los niveles; una línea descendente, que se pierden en el camino hacia arriba.",
+  ch_heat: "Sobre- e infrarrepresentación",
+  ch_heat_d: "Proporción de mujeres en cada nivel menos su proporción en el departamento, en puntos porcentuales. Las celdas grises no son estadísticamente significativas.",
+  heat_over: "Mujeres sobrerrepresentadas",
+  heat_under: "Mujeres infrarrepresentadas",
+  heat_ns: "No significativa",
+  overall_w: "{p} mujeres en total",
+  first8: "Se muestran los primeros 8 departamentos.",
   v_min_w: "Las mujeres son solo el {a} de la plantilla ({r} hombres por cada mujer). Aunque el salario por persona sea igual, estar tan infrarrepresentadas puede hacer que se las pase por alto o no se las escuche, por ejemplo en reuniones y decisiones, y puede causar una carga psicológica como estrés, aislamiento o presión para encajar. Este análisis salarial no puede medir esos efectos.",
   v_min_m: "Los hombres son solo el {a} de la plantilla ({r} mujeres por cada hombre). Aunque el salario por persona sea igual, estar tan infrarrepresentados puede hacer que se los pase por alto o no se los escuche, por ejemplo en reuniones y decisiones, y puede causar una carga psicológica como estrés, aislamiento o presión para encajar. Este análisis salarial no puede medir esos efectos.",
   ex_depts: ["A · Techo de cristal", "B · Suelo pegajoso", "C · Equilibrado", "D · Pocas mujeres, salario justo", "E · Desequilibrio extremo"],
@@ -416,6 +510,7 @@ es: {
 <li><strong>Pruebas.</strong> Cada diferencia se divide entre su incertidumbre combinada para obtener una t de Student, con grados de libertad = N<sub>mujeres</sub> + N<sub>hombres</sub> − 2. El valor p bilateral es la probabilidad de llegar a una conclusión errónea (error de tipo I); confianza = 1 − p.</li>
 <li><strong>Reparto salarial vs plantilla.</strong> Se compara el cociente entre la masa salarial de hombres y mujeres con el cociente de su número. Si los hombres reciben una parte mayor del salario que su parte de la plantilla, cobran más por persona.</li>
 <li><strong>Representación por nivel.</strong> En cada nivel, la proporción de mujeres se compara con su proporción en el resto de la plantilla mediante la prueba exacta de Fisher bilateral, fiable incluso con grupos muy pequeños. Como se supone que todas las personas de un nivel cobran el mismo punto medio, esto muestra <em>de dónde</em> viene una brecha en el salario medio: la infrarrepresentación en niveles bien pagados baja la media de las mujeres y la sobrerrepresentación la sube.</li>
+<li><strong>Indicadores de transparencia salarial de la UE.</strong> Siguiendo la Directiva de transparencia salarial de la UE (2023/970), la brecha media y la mediana se muestran también respecto al salario de los hombres, junto con la proporción de mujeres en cada cuartil salarial (toda la plantilla ordenada por salario y dividida en cuatro grupos iguales). Se señala una brecha del 5 % o más: a partir de ese nivel la Directiva exige a las empresas justificar o corregir la brecha. Aquí estos valores se estiman a partir de los puntos medios.</li>
 </ol>
 <h3>Limitaciones</h3>
 <ul>
@@ -429,10 +524,35 @@ es: {
 <li><a href="https://doi.org/10.59161/JCGM100-2008E" target="_blank" rel="noopener">JCGM 100:2008 — Evaluation of measurement data: Guide to the expression of uncertainty in measurement (GUM)</a>. Joint Committee for Guides in Metrology / BIPM. La distribución uniforme (rectangular) se describe en el apartado 4.3.7 y la triangular en el 4.3.9. Descarga gratuita en la web del BIPM.</li>
 <li><a href="https://www.gik.kit.edu/downloads/%5BSCHW20%5DGUM_AVN_Teil1.pdf" target="_blank" rel="noopener">Schwarz, W. (2020): Methoden zur Bestimmung der Messunsicherheit nach GUM – Teil 1</a>. avn – Allgemeine Vermessungs-Nachrichten 127(2), 69–86. Resumen en alemán del método GUM, con las distribuciones uniforme y triangular (p. 75).</li>
 <li><a href="https://www.ttable.org/" target="_blank" rel="noopener">Student's t-distribution table (ttable.org)</a>. Tabla de referencia de valores críticos de t. La aplicación calcula valores p bilaterales exactos en lugar de leerlos de una tabla.</li>
+<li><a href="https://eur-lex.europa.eu/eli/dir/2023/970/oj" target="_blank" rel="noopener">Directive (EU) 2023/970 (Pay Transparency Directive)</a>. EUR-Lex. Indicadores para informar sobre la brecha salarial de género (artículo 9).</li>
 </ol>`
 },
 ca: {
   locale: "ca-ES",
+  ch_pyramid: "Dones i homes per nivell",
+  ch_contrib: "D'on ve la bretxa",
+  ch_contrib_d: "Quant puja (+) o baixa (−) cada nivell el salari mitjà de les dones respecte al dels homes. En conjunt, les barres sumen la bretxa del salari mitjà ({gap}).",
+  contrib_up: "Apuja la mitjana de les dones",
+  contrib_down: "Abaixa la mitjana de les dones",
+  eu_title: "Indicadors de transparència salarial de la UE",
+  eu_d: "Estimats com es presenten als informes de la Directiva de transparència salarial de la UE (2023/970): bretxes respecte al salari dels homes i proporció de dones a cada quartil salarial. Les medianes i els quartils s'estimen a partir dels punts mitjans.",
+  eu_mean: "Bretxa mitjana",
+  eu_median: "Bretxa mediana",
+  eu_th: "Llindar del 5 %",
+  eu_above: "Per sobre del 5 %",
+  eu_below: "Per sota del 5 %",
+  eu_quart: "Dones i homes per quartil salarial",
+  q1: "Q1 més baix",
+  q4: "Q4 més alt",
+  ch_pipe: "Proporció de dones per nivell",
+  ch_pipe_d: "Una línia plana vol dir que les dones estan igual de representades a tots els nivells; una línia descendent, que es perden pel camí cap amunt.",
+  ch_heat: "Sobre- i infrarepresentació",
+  ch_heat_d: "Proporció de dones a cada nivell menys la seva proporció al departament, en punts percentuals. Les cel·les grises no són estadísticament significatives.",
+  heat_over: "Dones sobrerepresentades",
+  heat_under: "Dones infrarepresentades",
+  heat_ns: "No significativa",
+  overall_w: "{p} dones en total",
+  first8: "Es mostren els primers 8 departaments.",
   v_min_w: "Les dones són només el {a} de la plantilla ({r} homes per cada dona). Encara que el salari per persona sigui igual, estar tan infrarepresentades pot fer que se les passi per alt o no se les escolti, per exemple en reunions i decisions, i pot causar una càrrega psicològica com estrès, aïllament o pressió per encaixar. Aquesta anàlisi salarial no pot mesurar aquests efectes.",
   v_min_m: "Els homes són només el {a} de la plantilla ({r} dones per cada home). Encara que el salari per persona sigui igual, estar tan infrarepresentats pot fer que se'ls passi per alt o no se'ls escolti, per exemple en reunions i decisions, i pot causar una càrrega psicològica com estrès, aïllament o pressió per encaixar. Aquesta anàlisi salarial no pot mesurar aquests efectes.",
   ex_depts: ["A · Sostre de vidre", "B · Terra enganxós", "C · Equilibrat", "D · Poques dones, salari just", "E · Desequilibri extrem"],
@@ -511,6 +631,7 @@ ca: {
 <li><strong>Proves.</strong> Cada diferència es divideix per la seva incertesa combinada per obtenir una t de Student, amb graus de llibertat = N<sub>dones</sub> + N<sub>homes</sub> − 2. El valor p bilateral és la probabilitat d'arribar a una conclusió errònia (error de tipus I); confiança = 1 − p.</li>
 <li><strong>Repartiment salarial vs plantilla.</strong> Es compara el quocient entre la massa salarial d'homes i dones amb el quocient del seu nombre. Si els homes reben una part del salari més gran que la seva part de la plantilla, cobren més per persona.</li>
 <li><strong>Representació per nivell.</strong> A cada nivell, la proporció de dones es compara amb la seva proporció en la resta de la plantilla amb la prova exacta de Fisher bilateral, fiable fins i tot amb grups molt petits. Com que se suposa que totes les persones d'un nivell cobren el mateix punt mitjà, això mostra <em>d'on</em> ve una bretxa en el salari mitjà: la infrarepresentació en nivells ben pagats abaixa la mitjana de les dones i la sobrerepresentació l'apuja.</li>
+<li><strong>Indicadors de transparència salarial de la UE.</strong> Seguint la Directiva de transparència salarial de la UE (2023/970), la bretxa mitjana i la mediana també es mostren respecte al salari dels homes, juntament amb la proporció de dones a cada quartil salarial (tota la plantilla ordenada per salari i dividida en quatre grups iguals). Es marca una bretxa del 5 % o més: a partir d'aquest nivell la Directiva exigeix a les empreses justificar o corregir la bretxa. Aquí aquests valors s'estimen a partir dels punts mitjans.</li>
 </ol>
 <h3>Limitacions</h3>
 <ul>
@@ -524,10 +645,35 @@ ca: {
 <li><a href="https://doi.org/10.59161/JCGM100-2008E" target="_blank" rel="noopener">JCGM 100:2008 — Evaluation of measurement data: Guide to the expression of uncertainty in measurement (GUM)</a>. Joint Committee for Guides in Metrology / BIPM. La distribució uniforme (rectangular) es descriu a l'apartat 4.3.7 i la triangular al 4.3.9. Descàrrega gratuïta al web del BIPM.</li>
 <li><a href="https://www.gik.kit.edu/downloads/%5BSCHW20%5DGUM_AVN_Teil1.pdf" target="_blank" rel="noopener">Schwarz, W. (2020): Methoden zur Bestimmung der Messunsicherheit nach GUM – Teil 1</a>. avn – Allgemeine Vermessungs-Nachrichten 127(2), 69–86. Resum en alemany del mètode GUM, amb les distribucions uniforme i triangular (p. 75).</li>
 <li><a href="https://www.ttable.org/" target="_blank" rel="noopener">Student's t-distribution table (ttable.org)</a>. Taula de referència de valors crítics de t. L'aplicació calcula valors p bilaterals exactes en lloc de llegir-los d'una taula.</li>
+<li><a href="https://eur-lex.europa.eu/eli/dir/2023/970/oj" target="_blank" rel="noopener">Directive (EU) 2023/970 (Pay Transparency Directive)</a>. EUR-Lex. Indicadors per informar sobre la bretxa salarial de gènere (article 9).</li>
 </ol>`
 },
 de: {
   locale: "de-DE",
+  ch_pyramid: "Frauen und Männer nach Stufe",
+  ch_contrib: "Woher die Lücke kommt",
+  ch_contrib_d: "Wie stark jede Stufe das Durchschnittsgehalt der Frauen im Vergleich zu den Männern erhöht (+) oder senkt (−). Zusammen ergeben die Balken die Lücke beim Durchschnittsgehalt ({gap}).",
+  contrib_up: "Erhöht den Durchschnitt der Frauen",
+  contrib_down: "Senkt den Durchschnitt der Frauen",
+  eu_title: "EU-Indikatoren zur Entgelttransparenz",
+  eu_d: "Geschätzt wie in Berichten nach der EU-Entgelttransparenzrichtlinie (2023/970): Lücken relativ zum Gehalt der Männer und Frauenanteil in jedem Gehaltsquartil. Mediane und Quartile werden aus den Bandmitten geschätzt.",
+  eu_mean: "Mittlere Lücke",
+  eu_median: "Median-Lücke",
+  eu_th: "5-%-Schwelle",
+  eu_above: "Über 5 %",
+  eu_below: "Unter 5 %",
+  eu_quart: "Frauen und Männer je Gehaltsquartil",
+  q1: "Q1 niedrigstes",
+  q4: "Q4 höchstes",
+  ch_pipe: "Frauenanteil nach Stufe",
+  ch_pipe_d: "Eine flache Linie bedeutet, dass Frauen auf allen Stufen gleich vertreten sind; eine fallende Linie, dass sie auf dem Weg nach oben verloren gehen.",
+  ch_heat: "Über- und Unterrepräsentation",
+  ch_heat_d: "Frauenanteil auf jeder Stufe minus ihr Anteil in der Abteilung, in Prozentpunkten. Graue Zellen sind statistisch nicht signifikant.",
+  heat_over: "Frauen überrepräsentiert",
+  heat_under: "Frauen unterrepräsentiert",
+  heat_ns: "Nicht signifikant",
+  overall_w: "{p} Frauen insgesamt",
+  first8: "Es werden die ersten 8 Abteilungen gezeigt.",
   v_min_w: "Frauen machen nur {a} des Personals aus ({r} Männer pro Frau). Selbst wenn das Gehalt pro Person gleich ist, kann eine so starke Unterrepräsentation dazu führen, dass Frauen leichter übersehen oder nicht gehört werden, etwa in Besprechungen und bei Entscheidungen, und sie kann psychisch belasten, z. B. durch Stress, Isolation oder Anpassungsdruck. Diese Gehaltsanalyse kann solche Effekte nicht messen.",
   v_min_m: "Männer machen nur {a} des Personals aus ({r} Frauen pro Mann). Selbst wenn das Gehalt pro Person gleich ist, kann eine so starke Unterrepräsentation dazu führen, dass Männer leichter übersehen oder nicht gehört werden, etwa in Besprechungen und bei Entscheidungen, und sie kann psychisch belasten, z. B. durch Stress, Isolation oder Anpassungsdruck. Diese Gehaltsanalyse kann solche Effekte nicht messen.",
   ex_depts: ["A · Gläserne Decke", "B · Klebriger Boden", "C · Ausgewogen", "D · Wenige Frauen, faire Bezahlung", "E · Extremes Ungleichgewicht"],
@@ -606,6 +752,7 @@ de: {
 <li><strong>Tests.</strong> Jeder Unterschied wird durch seine kombinierte Unsicherheit geteilt. Das ergibt einen Student-t-Wert mit Freiheitsgraden = N<sub>Frauen</sub> + N<sub>Männer</sub> − 2. Der zweiseitige p-Wert ist die Wahrscheinlichkeit eines Fehlschlusses (Fehler 1. Art). Konfidenz = 1 − p.</li>
 <li><strong>Gehaltsanteil vs. Personalanteil.</strong> Das Verhältnis der Gesamtvergütung von Männern zu Frauen wird mit dem Verhältnis ihrer Personalzahlen verglichen. Ist der Gehaltsanteil der Männer größer als ihr Personalanteil, verdienen sie pro Kopf mehr.</li>
 <li><strong>Vertretung nach Stufe.</strong> Für jede Stufe wird der Frauenanteil mit ihrem Anteil am übrigen Personal verglichen, mit dem zweiseitigen exakten Test nach Fisher, der auch bei sehr kleinen Gruppen zuverlässig ist. Da für alle Personen einer Stufe dieselbe Bandmitte angenommen wird, zeigt dies, <em>woher</em> eine Lücke beim Durchschnittsgehalt kommt: Unterrepräsentation in gut bezahlten Stufen senkt den Durchschnitt der Frauen, Überrepräsentation hebt ihn.</li>
+<li><strong>EU-Indikatoren zur Entgelttransparenz.</strong> Nach der EU-Entgelttransparenzrichtlinie (2023/970) werden die mittlere und die Median-Lücke zusätzlich relativ zum Gehalt der Männer gezeigt, zusammen mit dem Frauenanteil in jedem Gehaltsquartil (das gesamte Personal nach Gehalt sortiert und in vier gleich große Gruppen geteilt). Eine Lücke von 5 % oder mehr wird markiert: Ab dieser Höhe verlangt die Richtlinie, dass Arbeitgeber die Lücke begründen oder beheben. Hier werden diese Werte aus den Bandmitten geschätzt.</li>
 </ol>
 <h3>Grenzen</h3>
 <ul>
@@ -619,6 +766,7 @@ de: {
 <li><a href="https://doi.org/10.59161/JCGM100-2008E" target="_blank" rel="noopener">JCGM 100:2008 — Evaluation of measurement data: Guide to the expression of uncertainty in measurement (GUM)</a>. Joint Committee for Guides in Metrology / BIPM. Die Gleich- (Rechteck-)verteilung wird in Abschnitt 4.3.7 beschrieben, die Dreiecksverteilung in Abschnitt 4.3.9. Kostenloser Download auf der Website des BIPM.</li>
 <li><a href="https://www.gik.kit.edu/downloads/%5BSCHW20%5DGUM_AVN_Teil1.pdf" target="_blank" rel="noopener">Schwarz, W. (2020): Methoden zur Bestimmung der Messunsicherheit nach GUM – Teil 1</a>. avn – Allgemeine Vermessungs-Nachrichten 127(2), 69–86. Deutschsprachige Zusammenfassung der GUM-Methode, einschließlich Gleich- und Dreiecksverteilung (S. 75).</li>
 <li><a href="https://www.ttable.org/" target="_blank" rel="noopener">Student's t-distribution table (ttable.org)</a>. Referenztabelle kritischer t-Werte. Die App berechnet exakte zweiseitige p-Werte, statt sie aus einer Tabelle abzulesen.</li>
+<li><a href="https://eur-lex.europa.eu/eli/dir/2023/970/oj" target="_blank" rel="noopener">Directive (EU) 2023/970 (Pay Transparency Directive)</a>. EUR-Lex. Indikatoren für die Berichterstattung über das geschlechtsspezifische Entgeltgefälle (Artikel 9).</li>
 </ol>`
 }
 };
@@ -997,8 +1145,13 @@ function renderDept(el, idx) {
       `<dt>${esc(tr("head_ratio"))}</dt><dd>${num(r.ratio.headcount_ratio, 2)}</dd><dt>${esc(tr("pay_ratio"))}</dt><dd>${num(r.ratio.pay_ratio, 2)} ± ${num(r.ratio.error, 2)}</dd>`)}
   </div>
   <section class="card"><div class="charts">
-    <div><h3 style="margin-top:0">${esc(tr("ch_head"))}</h3><div class="legend"><span style="--c:var(--w)">${esc(tr("women"))}</span><span style="--c:var(--m)">${esc(tr("men"))}</span></div><div id="chHead"></div></div>
+    <div><h3 style="margin-top:0">${esc(tr("ch_pyramid"))}</h3><div class="legend"><span style="--c:var(--w)">${esc(tr("women"))}</span><span style="--c:var(--m)">${esc(tr("men"))}</span></div><div id="chHead"></div></div>
     <div><h3 style="margin-top:0">${esc(tr("ch_mean"))}</h3><div class="legend"><span style="--c:var(--w)">${esc(tr("women"))}</span><span style="--c:var(--m)">${esc(tr("men"))}</span></div><div id="chMean"></div></div>
+  </div></section>
+  <section class="card"><div class="charts">
+    <div><h3 style="margin-top:0">${esc(tr("ch_contrib"))}</h3><p class="help">${esc(tr("ch_contrib_d", { gap: money(r.mean.diff) }))}</p>
+      <div class="legend"><span style="--c:var(--pos)">${esc(tr("contrib_up"))}</span><span style="--c:var(--neg)">${esc(tr("contrib_down"))}</span></div><div id="chContrib"></div></div>
+    <div id="euCard"></div>
   </div></section>
   <section class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(tr("per_level"))}</h2><span class="row" id="lvlBtns"></span></div>
     <p class="help">${esc(tr("per_level_d", { p: pct(r.women / (r.women + r.men), 1) }))}</p>
@@ -1007,8 +1160,10 @@ function renderDept(el, idx) {
     ${warns.length ? warns.map(w => `<div class="warn">${esc(w)}</div>`).join("") : ""}
   </section>
   <section class="card whatif" id="whatif"></section>`;
-  chartHeadcount($("#chHead"), r);
+  chartPyramid($("#chHead"), r);
   chartMeans($("#chMean"), [{ name: d.name, r }]);
+  chartContrib($("#chContrib"), r);
+  euCard($("#euCard"), r);
   tableButtons($("#lvlBtns"), () => tsvLevels(d, r), (d.name || "department") + "-levels.csv");
   renderWhatIf($("#whatif"), idx);
 }
@@ -1025,7 +1180,12 @@ function renderAll(el) {
         <td class="n">${pct(r.total.rel)}</td><td>${badge(r.total.label)}</td>
         <td class="n">${pct(r.ratio.excess)}</td><td>${badge(r.ratio.label)}</td></tr>`).join("")}</tbody></table></div>
   </section>
+  <section class="card"><h3 style="margin-top:0">${esc(tr("ch_pipe"))}</h3><p class="help">${esc(tr("ch_pipe_d"))}</p><div id="chPipe"></div></section>
+  <section class="card"><h3 style="margin-top:0">${esc(tr("ch_heat"))}</h3><p class="help">${esc(tr("ch_heat_d"))}</p>
+    <div class="legend"><span style="--c:var(--pos)">${esc(tr("heat_over"))}</span><span style="--c:var(--neg)">${esc(tr("heat_under"))}</span><span style="--c:var(--hover)">${esc(tr("heat_ns"))}</span></div><div id="heat"></div></section>
   <section class="card"><h3 style="margin-top:0">${esc(tr("ch_mean"))}</h3><div class="legend"><span style="--c:var(--w)">${esc(tr("women"))}</span><span style="--c:var(--m)">${esc(tr("men"))}</span></div><div id="chAll"></div></section>`;
+  chartPipeline($("#chPipe"), rs);
+  heatmap($("#heat"), rs);
   chartMeans($("#chAll"), rs);
   tableButtons($("#allBtns"), () => tsvAll(rs), "departments.csv");
 }
@@ -1093,7 +1253,7 @@ function chartHeadcount(el, r) {
   el.innerHTML = s; bindTips(el.querySelector("svg"));
 }
 function chartMeans(el, items) {
-  const rowH = items.length === 1 ? 80 : 46, W = Math.max(300, Math.round(el.clientWidth) || 460), L = 160, R = 16, T = 8, B = 26, H = T + B + rowH * items.length;
+  const rowH = items.length === 1 ? 80 : 46, W = Math.max(300, Math.round(el.clientWidth) || 460), L = Math.min(160, Math.round(W * 0.36)), R = 16, T = 8, B = 26, H = T + B + rowH * items.length;
   let lo = Infinity, hi = -Infinity;
   items.forEach(({ r }) => { [["women", "err_women"], ["men", "err_men"]].forEach(([a, e]) => { lo = Math.min(lo, r.mean[a] - r.mean[e]); hi = Math.max(hi, r.mean[a] + r.mean[e]); }); });
   const pad = (hi - lo) * 0.1 || 1000; lo = Math.max(0, lo - pad); hi = hi + pad;
@@ -1117,6 +1277,133 @@ function chartMeans(el, items) {
   });
   s += `</svg>`;
   el.innerHTML = s; bindTips(el.querySelector("svg"));
+}
+
+// ---------- new charts ----------
+const svgW = el => Math.max(300, Math.round(el.clientWidth) || 460);
+const compact = v => new Intl.NumberFormat(loc(), { notation: "compact", maximumFractionDigits: 1 }).format(v);
+const moneyC = v => (v < 0 ? "−" : v > 0 ? "+" : "") + money(Math.abs(v));
+
+function chartPyramid(el, r) {
+  const W = svgW(el), rowH = Math.max(22, Math.min(34, 200 / r.levels.length)), T = 6, B = 24;
+  const H = T + B + rowH * r.levels.length, lab = 78, P = 22, half = (W - lab) / 2;
+  const max = niceMax(Math.max(1, ...r.levels.map(l => Math.max(l.women, l.men))));
+  const sx = v => (half - P) * v / max;
+  const bh = Math.min(20, rowH - 6);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(tr("ch_pyramid"))}">`;
+  [0, 0.5, 1].forEach(f => {
+    const xl = half - sx(f * max), xr = half + lab + sx(f * max);
+    s += `<line x1="${xl}" x2="${xl}" y1="${T}" y2="${H - B}" stroke="var(--grid)"/><line x1="${xr}" x2="${xr}" y1="${T}" y2="${H - B}" stroke="var(--grid)"/>`;
+    s += `<text x="${xl}" y="${H - 8}" text-anchor="middle">${num(f * max)}</text><text x="${xr}" y="${H - 8}" text-anchor="middle">${num(f * max)}</text>`;
+  });
+  r.levels.slice().reverse().forEach((l, i) => {
+    const y = T + rowH * i + (rowH - bh) / 2, cy = T + rowH * i + rowH / 2;
+    const ww = sx(l.women), mw = sx(l.men), rr = Math.min(4, bh / 2);
+    const t_ = `<b>${esc(l.level)}</b><br>${esc(tr("women"))}: ${num(l.women)}<br>${esc(tr("men"))}: ${num(l.men)}<br>${esc(tr("w_share"))}: ${l.share_women == null ? "–" : pct(l.share_women, 1)}`;
+    s += `<g data-tip="${esc(t_)}"><rect x="0" y="${T + rowH * i}" width="${W}" height="${rowH}" fill="transparent"/>`;
+    if (ww > 0) s += `<path d="M${half},${y} H${half - ww + Math.min(rr, ww)} q-${Math.min(rr, ww)},0 -${Math.min(rr, ww)},${Math.min(rr, ww)} V${y + bh - Math.min(rr, ww)} q0,${Math.min(rr, ww)} ${Math.min(rr, ww)},${Math.min(rr, ww)} H${half} Z" fill="var(--w)"/>`;
+    if (mw > 0) s += `<path d="M${half + lab},${y} H${half + lab + mw - Math.min(rr, mw)} q${Math.min(rr, mw)},0 ${Math.min(rr, mw)},${Math.min(rr, mw)} V${y + bh - Math.min(rr, mw)} q0,${Math.min(rr, mw)} -${Math.min(rr, mw)},${Math.min(rr, mw)} H${half + lab} Z" fill="var(--m)"/>`;
+    s += `<text class="lbl" x="${half + lab / 2}" y="${cy + 4}" text-anchor="middle">${esc(l.level.length > 11 ? l.level.slice(0, 10) + "…" : l.level)}</text></g>`;
+  });
+  el.innerHTML = s + "</svg>"; bindTips(el.querySelector("svg"));
+}
+
+function chartContrib(el, r) {
+  const W = svgW(el), H = 230, T = 10, B = 26, n = r.levels.length;
+  const vals = r.levels.map(l => l.contribution || 0);
+  const m = niceMax(Math.max(1, ...vals.map(Math.abs)));
+  const L = 14 + 7 * compact(-m).length, gw = (W - L - 8) / n, bw = Math.min(24, gw * 0.55);
+  const y = v => T + (H - T - B) * (m - v) / (2 * m);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(tr("ch_contrib"))}">`;
+  [-m, -m / 2, 0, m / 2, m].forEach(v => s += `<line x1="${L}" x2="${W - 8}" y1="${y(v)}" y2="${y(v)}" stroke="${v === 0 ? "var(--axis)" : "var(--grid)"}"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${(v > 0 ? "+" : v < 0 ? "−" : "") + compact(Math.abs(v))}</text>`);
+  r.levels.forEach((l, i) => {
+    const v = vals[i], cx = L + gw * i + gw / 2, y0 = y(0), y1 = y(v), h = Math.abs(y1 - y0), rr = Math.min(4, h / 2);
+    const t_ = `<b>${esc(l.level)}</b><br>${moneyC(v)}`;
+    s += `<g data-tip="${esc(t_)}"><rect x="${cx - gw / 2}" y="${T}" width="${gw}" height="${H - T - B}" fill="transparent"/>`;
+    if (h > 0.5) s += v > 0
+      ? `<path d="M${cx - bw / 2},${y0} V${y1 + rr} q0,-${rr} ${rr},-${rr} H${cx + bw / 2 - rr} q${rr},0 ${rr},${rr} V${y0} Z" fill="var(--pos)"/>`
+      : `<path d="M${cx - bw / 2},${y0} V${y1 - rr} q0,${rr} ${rr},${rr} H${cx + bw / 2 - rr} q${rr},0 ${rr},-${rr} V${y0} Z" fill="var(--neg)"/>`;
+    s += `<text class="lbl" x="${cx}" y="${H - 8}" text-anchor="middle">${esc(l.level.replace(/^\S+\s+(?=[IVX]+$)/, ""))}</text></g>`;
+  });
+  el.innerHTML = s + "</svg>"; bindTips(el.querySelector("svg"));
+}
+
+function euCard(el, r) {
+  const e = r.eu, sgn = v => (v > 0 ? "+" : v < 0 ? "−" : "") + pct(Math.abs(v), 1);
+  el.innerHTML = `<h3 style="margin-top:0">${esc(tr("eu_title"))}</h3><p class="help">${esc(tr("eu_d"))}</p>
+    <div class="tiles">
+      <div class="tile"><div class="k">${esc(tr("eu_mean"))}</div><div class="v">${sgn(e.mean_gap)}</div><div class="s">${money(r.mean.women)} / ${money(r.mean.men)}</div></div>
+      <div class="tile"><div class="k">${esc(tr("eu_median"))}</div><div class="v">${sgn(e.median_gap)}</div><div class="s">${money(e.median_women)} / ${money(e.median_men)}</div></div>
+      <div class="tile"><div class="k">${esc(tr("eu_th"))}</div><div class="flag" style="color:${e.above_threshold ? "var(--bad)" : "var(--good)"}">${e.above_threshold ? "⚠ " + esc(tr("eu_above")) : "✓ " + esc(tr("eu_below"))}</div></div>
+    </div>
+    <div style="font-size:13px;color:var(--ink2);margin-bottom:4px">${esc(tr("eu_quart"))}</div>
+    <div class="legend"><span style="--c:var(--w)">${esc(tr("women"))}</span><span style="--c:var(--m)">${esc(tr("men"))}</span></div><div id="chQuart"></div>`;
+  const c = $("#chQuart", el), W = svgW(c), H = 170, T = 6, B = 24, L = 36, gw = (W - L - 8) / 4, bw = Math.min(46, gw * 0.6);
+  const y = v => T + (H - T - B) * (1 - v);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(tr("eu_quart"))}">`;
+  [0, 0.5, 1].forEach(v => s += `<line x1="${L}" x2="${W - 8}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${pct(v, 0)}</text>`);
+  e.quartiles.forEach((q, i) => {
+    const sw = isFinite(q.share_women) ? q.share_women : 0, cx = L + gw * i + gw / 2;
+    const lab = i === 0 ? tr("q1") : i === 3 ? tr("q4") : "Q" + (i + 1);
+    const t_ = `<b>${esc(lab)}</b><br>${esc(tr("women"))}: ${pct(sw, 1)}<br>${esc(tr("men"))}: ${pct(1 - sw, 1)}`;
+    s += `<g data-tip="${esc(t_)}"><rect x="${cx - bw / 2}" y="${y(1)}" width="${bw}" height="${y(sw) - y(1) - (sw > 0 && sw < 1 ? 2 : 0)}" fill="var(--m)" rx="3"/>
+      <rect x="${cx - bw / 2}" y="${y(sw)}" width="${bw}" height="${y(0) - y(sw)}" fill="var(--w)" rx="3"/>
+      <text class="lbl" x="${cx}" y="${H - 8}" text-anchor="middle">${esc(lab)}</text>
+      ${sw >= 0.12 ? `<text x="${cx}" y="${(y(sw) + y(0)) / 2 + 4}" text-anchor="middle" style="fill:#fff;font-size:11px">${pct(sw, 0)}</text>` : ""}</g>`;
+  });
+  c.innerHTML = s + "</svg>"; bindTips(c.querySelector("svg"));
+}
+
+function chartPipeline(el, items) {
+  const its = items.slice(0, 8), W = svgW(el), H = 280, T = 10, B = 26, L = 64, R = 40;
+  const n = state.levels.length, x = i => L + (W - L - R) * (n === 1 ? 0.5 : i / (n - 1)), y = v => T + (H - T - B) * (1 - v);
+  const dashes = ["", "6 4", "2 3", "10 3 2 3", "", "6 4", "2 3", "10 3 2 3"];
+  const mark = (k, cx, cy, c) => {
+    const sh = k % 5;
+    if (sh === 0) return `<circle cx="${cx}" cy="${cy}" r="4.5" fill="${c}" stroke="var(--surface)" stroke-width="1.5"/>`;
+    if (sh === 1) return `<rect x="${cx - 4}" y="${cy - 4}" width="8" height="8" fill="${c}" stroke="var(--surface)" stroke-width="1.5"/>`;
+    if (sh === 2) return `<path d="M${cx},${cy - 5} L${cx + 5},${cy + 4} L${cx - 5},${cy + 4} Z" fill="${c}" stroke="var(--surface)" stroke-width="1.5"/>`;
+    if (sh === 3) return `<path d="M${cx},${cy - 5.5} L${cx + 5.5},${cy} L${cx},${cy + 5.5} L${cx - 5.5},${cy} Z" fill="${c}" stroke="var(--surface)" stroke-width="1.5"/>`;
+    return `<path d="M${cx - 4.5},${cy - 4.5} L${cx + 4.5},${cy + 4.5} M${cx + 4.5},${cy - 4.5} L${cx - 4.5},${cy + 4.5}" stroke="${c}" stroke-width="2.5"/>`;
+  };
+  let s = `<div class="legend" style="flex-wrap:wrap">${its.map((it, k) => `<span style="--c:var(--s${k + 1})">${esc(it.name)} · ${esc(tr("overall_w", { p: pct(it.r.women / (it.r.women + it.r.men), 0) }))}</span>`).join("")}</div>`;
+  s += `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(tr("ch_pipe"))}">`;
+  [0, 0.25, 0.5, 0.75, 1].forEach(v => s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${pct(v, 0)}</text>`);
+  const shortL = nm => W < 560 ? nm.replace(/^\S+\s+(?=[IVX]+$)/, "") : nm;
+  state.levels.forEach((l, i) => { const t_ = shortL(l.name); s += `<text class="lbl" x="${x(i)}" y="${H - 8}" text-anchor="middle">${esc(t_.length > 11 ? t_.slice(0, 10) + "…" : t_)}</text>`; });
+  its.forEach((it, k) => {
+    const c = `var(--s${k + 1})`, pts = it.r.levels.map((l, i) => l.share_women == null ? null : [x(i), y(l.share_women)]);
+    let d = "", pen = false;
+    pts.forEach(p => { if (!p) { pen = false; return; } d += (pen ? "L" : "M") + p[0] + "," + p[1] + " "; pen = true; });
+    s += `<path d="${d}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" ${dashes[k] ? `stroke-dasharray="${dashes[k]}"` : ""}/>`;
+    it.r.levels.forEach((l, i) => { if (!pts[i]) return;
+      const t_ = `<b>${esc(it.name)}</b><br>${esc(l.level)}: ${pct(l.share_women, 1)} ${esc(tr("women").toLowerCase())}<br>${badge(l.label)}`;
+      s += `<g data-tip="${esc(t_)}"><circle cx="${pts[i][0]}" cy="${pts[i][1]}" r="10" fill="transparent"/>${mark(k, pts[i][0], pts[i][1], c)}</g>`; });
+  });
+  s += "</svg>" + (items.length > 8 ? `<p class="help">${esc(tr("first8"))}</p>` : "");
+  el.innerHTML = s; bindTips(el.querySelector("svg"));
+}
+
+function heatmap(el, items) {
+  const n = state.levels.length;
+  let h = `<div class="tbl-scroll"><div class="heat" style="grid-template-columns:minmax(130px,1.6fr) repeat(${n},minmax(44px,1fr));min-width:${130 + n * 48}px"><div></div>`;
+  h += state.levels.map(l => `<div class="hd" title="${esc(l.name)}">${esc(l.name.replace(/^\S+\s+(?=[IVX]+$)/, ""))}</div>`).join("");
+  items.forEach(({ name, r }) => {
+    h += `<div class="rl"><span title="${esc(name)}">${esc(name)}</span><span style="font-size:11px;color:var(--muted)">${esc(tr("overall_w", { p: pct(r.women / (r.women + r.men), 0) }))}</span></div>`;
+    r.levels.forEach(l => {
+      if (l.share_diff == null) { h += `<div class="c">–</div>`; return; }
+      const pp = l.share_diff * 100, sig = l.label === "HiSig" || l.label === "Sig", a = Math.abs(pp);
+      const tip = `${name} · ${l.level}: ${ppTxt(l.share_diff)} · ${tr("lab_" + l.label)}`;
+      let st = "";
+      if (sig && a >= 0.5) {
+        const alpha = a < 10 ? 0.3 : a < 25 ? 0.6 : 0.95;
+        st = `background:color-mix(in srgb, var(${pp > 0 ? "--pos" : "--neg"}) ${Math.round(alpha * 100)}%, transparent);color:${alpha > 0.5 ? "#fff" : "var(--ink)"};font-weight:${alpha > 0.5 ? 600 : 400}`;
+      }
+      const rd = Math.round(pp);
+      h += `<div class="c" style="${st}" title="${esc(tip)}">${(rd > 0 ? "+" : rd < 0 ? "−" : "") + num(Math.abs(rd), 0)}</div>`;
+    });
+  });
+  el.innerHTML = h + "</div></div>";
 }
 
 // ---------- export / tables ----------

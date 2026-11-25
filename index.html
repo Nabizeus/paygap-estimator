@@ -5,7 +5,8 @@
   color-scheme: light;
   --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
   --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10); --hover:rgba(11,11,11,.04);
-  --w:#3aa36a; --m:#a06a2a; --accent:#2a78d6; --warn-bg:#fff6e0; --warn-ink:#6b4a00;
+  --w:#3aa36a; --m:#a06a2a; --accent:#2a78d6; --pos:#2a78d6; --neg:#e34948; --good:#0a8f0a; --bad:#d03b3b;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --s7:#6250d6; --s8:#e34948; --warn-bg:#fff6e0; --warn-ink:#6b4a00;
   --err:#d03b3b;
 }
 @media (prefers-color-scheme: dark){
@@ -13,14 +14,16 @@
     color-scheme: dark;
     --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
     --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --hover:rgba(255,255,255,.05);
-    --w:#3aa36a; --m:#a06a2a; --accent:#3987e5; --warn-bg:#2e2510; --warn-ink:#f3d58a;
+    --w:#3aa36a; --m:#a06a2a; --accent:#3987e5; --pos:#3987e5; --neg:#e66767; --good:#0ca30c; --bad:#e66767;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#0ca30c; --s7:#9085e9; --s8:#e66767; --warn-bg:#2e2510; --warn-ink:#f3d58a;
   }
 }
 :root[data-theme="dark"]{
   color-scheme: dark;
   --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
   --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --hover:rgba(255,255,255,.05);
-  --w:#3aa36a; --m:#a06a2a; --accent:#3987e5; --warn-bg:#2e2510; --warn-ink:#f3d58a;
+  --w:#3aa36a; --m:#a06a2a; --accent:#3987e5; --pos:#3987e5; --neg:#e66767; --good:#0ca30c; --bad:#e66767;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#0ca30c; --s7:#9085e9; --s8:#e66767; --warn-bg:#2e2510; --warn-ink:#f3d58a;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--page);color:var(--ink);
@@ -112,6 +115,43 @@ svg .lbl{fill:var(--ink2);font-size:12px}
 @media print{ nav.tabs,.lang,.whatif,button{display:none!important} .card{break-inside:avoid} }
 .method a{color:var(--accent)}
 .method ol.src li{font-size:14px}
+.verdict p.note{font-size:15px;color:var(--ink2);border-left:3px solid var(--axis);padding:2px 0 2px 12px;margin:10px 0}
+.heat{display:grid;gap:3px;font-size:13px;font-variant-numeric:tabular-nums}
+.heat .hd{text-align:center;color:var(--muted);font-size:12px;padding:2px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.heat .rl{display:flex;flex-direction:column;justify-content:center;padding-right:8px;min-width:0}
+.heat .rl span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.heat .c{border-radius:4px;text-align:center;padding:10px 2px;background:var(--hover);color:var(--muted)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin:8px 0 14px}
+.tile{background:var(--hover);border-radius:8px;padding:10px 12px}
+.tile .k{font-size:12px;color:var(--ink2)} .tile .v{font-size:22px;font-weight:650;font-variant-numeric:tabular-nums}
+.tile .s{font-size:11px;color:var(--muted)}
+.flag{font-size:14px;font-weight:600;margin-top:4px}
+.legend span[style*="--hover"]::before{border:1px solid var(--axis)}
+
+#print-root{display:none}
+@media print{
+  @page{size:A4;margin:16mm 15mm}
+  html,body{background:#fff!important}
+  body>*:not(#print-root){display:none!important}
+  #print-root{display:block;color:#0b0b0b;font:10pt/1.45 Arial,Helvetica,sans-serif}
+  #print-root .rt{font-size:20pt;margin:0 0 4pt}
+  #print-root .r1{font-size:15pt;margin:14pt 0 6pt;break-after:avoid}
+  #print-root .r2{font-size:12pt;margin:12pt 0 4pt;break-after:avoid}
+  #print-root .r3{font-size:10.5pt;margin:10pt 0 3pt;break-after:avoid}
+  #print-root p{margin:0 0 5pt}
+  #print-root .ri{margin-left:14pt}
+  #print-root .rn{border-left:3px solid #c3c2b7;padding-left:8pt;color:#52514e}
+  #print-root .rl span{margin-right:14pt;color:#52514e;font-size:9pt}
+  #print-root .rl i{display:inline-block;width:9pt;height:9pt;border-radius:2pt;margin-right:4pt;vertical-align:-1pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #print-root .rimg{display:block;max-width:100%;margin:2pt 0 8pt;break-inside:avoid}
+  #print-root .rpb{break-after:page}
+  #print-root .rg{break-inside:avoid}
+  #print-root .rtab{width:100%;border-collapse:collapse;font-size:8.5pt;margin:2pt 0 8pt;break-inside:auto}
+  #print-root .rtab th{background:#f1efe8;color:#52514e;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #print-root .rtab th,#print-root .rtab td{padding:3pt 4pt;border-bottom:0.5pt solid #e1e0d9}
+  #print-root .rtab .n{text-align:right}
+  #print-root .rtab tr{break-inside:avoid}
+}
 </style></head>
 <body><div class="wrap" id="app"></div>
 <script>// ---- Pay gap calculations (mirror of python/paygap/__init__.py) ----
@@ -190,6 +230,33 @@ const PayGap = (() => {
     for (let x = lo; x <= hi; x++) { const v = lp(x); if (v <= obs + 1e-7) p += Math.exp(v); }
     return Math.min(1, p);
   }
+  // EU Pay Transparency style indicators, estimated from band midpoints:
+  // mean and median gap relative to men's pay, and women's share per pay quartile.
+  function euIndicators(rows, W, M, aw, am) {
+    const sorted = rows.filter(r => r.women + r.men > 0).slice().sort((a, b) => a.midpoint - b.midpoint);
+    const median = key => {
+      const tot = sorted.reduce((a, r) => a + r[key], 0);
+      if (!tot) return NaN;
+      const half = (tot + 1) / 2; let acc = 0;
+      for (const r of sorted) { acc += r[key]; if (acc >= half) return r.midpoint; }
+      return NaN;
+    };
+    const mw = median("women"), mm = median("men");
+    const N = W + M, q = [[0, 0], [0, 0], [0, 0], [0, 0]];
+    let pos = 0;
+    for (const r of sorted) {
+      const n = r.women + r.men;
+      for (let k = 0; k < 4; k++) {
+        const ov = Math.max(0, Math.min(pos + n, (k + 1) * N / 4) - Math.max(pos, k * N / 4));
+        q[k][0] += ov * r.women / n; q[k][1] += ov * r.men / n;
+      }
+      pos += n;
+    }
+    const meanGap = am ? (aw - am) / am : NaN, medianGap = mm ? (mw - mm) / mm : NaN;
+    return { mean_gap: meanGap, median_gap: medianGap, median_women: mw, median_men: mm,
+      quartiles: q.map(([w, m]) => ({ women: w, men: m, share_women: w + m ? w / (w + m) : NaN })),
+      above_threshold: Math.abs(meanGap) >= 0.05 || Math.abs(medianGap) >= 0.05 };
+  }
   const mid = l => (l.mid != null && l.mid !== "" && isFinite(+l.mid)) ? +l.mid : (+l.min + +l.max) / 2;
 
   /** levels: [{name,min,max,mid?}], women:[n], men:[n] */
@@ -233,7 +300,10 @@ const PayGap = (() => {
     const rerr = fw && fm ? pr * Math.sqrt((gw / fw) ** 2 + (gm / fm) ** 2) : 0;
     const ratio = test(hr - pr, rerr, dof, th);
     Object.assign(ratio, { headcount_ratio: hr, pay_ratio: pr, excess: pr / hr - 1 });
-    return Object.assign(out, { total, mean, ratio });
+    // Where the gap comes from: each level's contribution to (women's average - men's average)
+    rows.forEach(r => { r.contribution = r.midpoint * (r.women / nw - r.men / nm); });
+    const eu = euIndicators(rows, nw, nm, aw, am);
+    return Object.assign(out, { total, mean, ratio, eu });
   }
   return { analyze, tP, label, mid, fisher };
 })();
@@ -242,6 +312,46 @@ if (typeof module !== "undefined") module.exports = PayGap;
 <script>const I18N = {
 en: {
   locale: "en-GB",
+  women_lc: "women", men_lc: "men",
+  rep_btn: "Download report",
+  rep_making: "Preparing the report…",
+  rep_fail: "The report couldn't be created. Please try again.",
+  rep_pdf_hint: "In the print window, choose “Save as PDF”.",
+  rep_title: "Pay gap report",
+  rep_generated: "Generated on {d} with the Pay Gap Estimator.",
+  rep_settings: "Assumptions",
+  rep_summary: "Summary",
+  rep_key: "Key figures",
+  rep_file: "pay-gap-report",
+  dist_tri_s: "Triangular",
+  dist_uni_s: "Uniform",
+  ch_pyramid: "Women and men by level",
+  ch_contrib: "Where the gap comes from",
+  ch_contrib_d: "How much each level raises (+) or lowers (−) women's average pay compared with men's. Together the bars add up to the average-pay gap ({gap}).",
+  contrib_up: "Raises women's average",
+  contrib_down: "Lowers women's average",
+  eu_title: "EU pay transparency indicators",
+  eu_d: "Estimated the way reports under the EU Pay Transparency Directive (2023/970) present them: gaps relative to men's pay, and women's share in each pay quartile. Medians and quartiles are estimated from band midpoints.",
+  eu_mean: "Mean gap",
+  eu_median: "Median gap",
+  eu_th: "5% threshold",
+  eu_above: "Above 5%",
+  eu_below: "Below 5%",
+  eu_quart: "Women and men per pay quartile",
+  q1: "Q1 lowest",
+  q4: "Q4 highest",
+  ch_pipe: "Women's share by level",
+  ch_pipe_d: "A flat line means women are equally represented at every level; a falling line means they drop out on the way up.",
+  ch_heat: "Over- and under-representation",
+  ch_heat_d: "Women's share at each level minus their share in the department, in percentage points. Grey cells are not statistically significant.",
+  heat_over: "Women over-represented",
+  heat_under: "Women under-represented",
+  heat_ns: "Not significant",
+  overall_w: "{p} women overall",
+  first8: "Showing the first 8 departments.",
+  v_min_w: "Women are only {a} of staff ({r} men for every woman). Even where pay per person is equal, being so under-represented can mean that women are more easily overlooked or not heard, for example in meetings and decisions, and it can cause psychological strain such as stress, isolation or pressure to fit in. This pay analysis can't measure those effects.",
+  v_min_m: "Men are only {a} of staff ({r} women for every man). Even where pay per person is equal, being so under-represented can mean that men are more easily overlooked or not heard, for example in meetings and decisions, and it can cause psychological strain such as stress, isolation or pressure to fit in. This pay analysis can't measure those effects.",
+  ex_depts: ["A · Glass ceiling", "B · Sticky floor", "C · Balanced", "D · Few women, fair pay", "E · Extreme imbalance"],
   pay_pp: "Pay per person", w_share: "Women's share", vs_all: "vs. overall", women_are: "Women are", pp: "pp", rep_under: "under-represented", rep_over: "over-represented", rep_as_expected: "as expected", v_rep_intro: "Women are {a} of staff.", v_under: "They are significantly under-represented at {levels}.", v_over: "They are significantly over-represented at {levels}.",
   ex_company: "Your Company", ex_dept: "Department {x}",
   app_title: "Pay Gap Estimator",
@@ -317,22 +427,65 @@ en: {
 <li><strong>Tests.</strong> Each difference is divided by its combined uncertainty to give a Student t-score, with degrees of freedom = N<sub>women</sub> + N<sub>men</sub> − 2. The two-tailed p-value is the probability of reaching the wrong conclusion (Type I error). Confidence = 1 − p.</li>
 <li><strong>Pay share vs headcount.</strong> The ratio of men's to women's total pay is compared with the ratio of their headcounts. If men's share of pay is larger than their share of headcount, men are paid more per person.</li>
 <li><strong>Representation by level.</strong> For each level, women's share is compared with their share among all other staff using a two-sided Fisher's exact test, which is reliable even for very small groups. Since everyone at a level is assumed to earn the same midpoint, this shows <em>where</em> a gap in average pay comes from: under-representation in well-paid levels lowers women's average, over-representation raises it.</li>
+<li><strong>EU pay transparency indicators.</strong> Following the EU Pay Transparency Directive (2023/970), the mean and median gap are also shown relative to men's pay, together with women's share in each pay quartile (all staff sorted by pay and split into four equal groups). A gap of 5% or more is flagged: from that level the Directive requires employers to justify or correct the gap. Here these values are estimated from band midpoints.</li>
 </ol>
 <h3>Limits</h3>
 <ul>
 <li>Average pay here is an estimate based on band midpoints. It can only show a gap caused by how women and men are spread across levels, not differences in pay within a band.</li>
 <li>Small groups (fewer than ~5 people) give unreliable results and may make individuals identifiable.</li>
 <li>Statistical significance isn't proof of discrimination. It shows the difference is unlikely to be due to chance under these assumptions.</li>
+<li>The analysis only looks at pay. A strong headcount imbalance (e.g. fewer than about 30% women, a common rule of thumb for a "critical mass") is worth noting even when pay per person is equal. The under-represented group can be more easily overlooked or not heard, for example in meetings and decisions, and can experience psychological strain such as stress, isolation or pressure to fit in. Salary data can't show these effects.</li>
 </ul>
 <h3>Sources</h3>
 <ol class="src">
 <li><a href="https://doi.org/10.59161/JCGM100-2008E" target="_blank" rel="noopener">JCGM 100:2008 — Evaluation of measurement data: Guide to the expression of uncertainty in measurement (GUM)</a>. Joint Committee for Guides in Metrology / BIPM. The uniform (rectangular) distribution is described in section 4.3.7 and the triangular distribution in section 4.3.9. Free to download from the BIPM website.</li>
 <li><a href="https://www.gik.kit.edu/downloads/%5BSCHW20%5DGUM_AVN_Teil1.pdf" target="_blank" rel="noopener">Schwarz, W. (2020): Methoden zur Bestimmung der Messunsicherheit nach GUM – Teil 1</a>. avn – Allgemeine Vermessungs-Nachrichten 127(2), 69–86. A German-language summary of the GUM method, including the uniform and triangular distributions (p. 75).</li>
 <li><a href="https://www.ttable.org/" target="_blank" rel="noopener">Student's t-distribution table (ttable.org)</a>. Reference table of critical t-values. The app calculates exact two-tailed p-values instead of reading them from a table.</li>
+<li><a href="https://eur-lex.europa.eu/eli/dir/2023/970/oj" target="_blank" rel="noopener">Directive (EU) 2023/970 (Pay Transparency Directive)</a>. EUR-Lex. Indicators for gender pay gap reporting (Article 9).</li>
 </ol>`
 },
 es: {
   locale: "es-ES",
+  women_lc: "mujeres", men_lc: "hombres",
+  rep_btn: "Descargar informe",
+  rep_making: "Preparando el informe…",
+  rep_fail: "No se ha podido crear el informe. Inténtalo de nuevo.",
+  rep_pdf_hint: "En la ventana de impresión, elige «Guardar como PDF».",
+  rep_title: "Informe de brecha salarial",
+  rep_generated: "Generado el {d} con el Estimador de brecha salarial.",
+  rep_settings: "Supuestos",
+  rep_summary: "Resumen",
+  rep_key: "Cifras clave",
+  rep_file: "informe-brecha-salarial",
+  dist_tri_s: "Triangular",
+  dist_uni_s: "Uniforme",
+  ch_pyramid: "Mujeres y hombres por nivel",
+  ch_contrib: "De dónde viene la brecha",
+  ch_contrib_d: "Cuánto sube (+) o baja (−) cada nivel el salario medio de las mujeres respecto al de los hombres. En conjunto, las barras suman la brecha del salario medio ({gap}).",
+  contrib_up: "Sube la media de las mujeres",
+  contrib_down: "Baja la media de las mujeres",
+  eu_title: "Indicadores de transparencia salarial de la UE",
+  eu_d: "Estimados como se presentan en los informes de la Directiva de transparencia salarial de la UE (2023/970): brechas respecto al salario de los hombres y proporción de mujeres en cada cuartil salarial. Medianas y cuartiles se estiman a partir de los puntos medios.",
+  eu_mean: "Brecha media",
+  eu_median: "Brecha mediana",
+  eu_th: "Umbral del 5 %",
+  eu_above: "Por encima del 5 %",
+  eu_below: "Por debajo del 5 %",
+  eu_quart: "Mujeres y hombres por cuartil salarial",
+  q1: "Q1 más bajo",
+  q4: "Q4 más alto",
+  ch_pipe: "Proporción de mujeres por nivel",
+  ch_pipe_d: "Una línea plana significa que las mujeres están igual de representadas en todos los niveles; una línea descendente, que se pierden en el camino hacia arriba.",
+  ch_heat: "Sobre- e infrarrepresentación",
+  ch_heat_d: "Proporción de mujeres en cada nivel menos su proporción en el departamento, en puntos porcentuales. Las celdas grises no son estadísticamente significativas.",
+  heat_over: "Mujeres sobrerrepresentadas",
+  heat_under: "Mujeres infrarrepresentadas",
+  heat_ns: "No significativa",
+  overall_w: "{p} mujeres en total",
+  first8: "Se muestran los primeros 8 departamentos.",
+  v_min_w: "Las mujeres son solo el {a} de la plantilla ({r} hombres por cada mujer). Aunque el salario por persona sea igual, estar tan infrarrepresentadas puede hacer que se las pase por alto o no se las escuche, por ejemplo en reuniones y decisiones, y puede causar una carga psicológica como estrés, aislamiento o presión para encajar. Este análisis salarial no puede medir esos efectos.",
+  v_min_m: "Los hombres son solo el {a} de la plantilla ({r} mujeres por cada hombre). Aunque el salario por persona sea igual, estar tan infrarrepresentados puede hacer que se los pase por alto o no se los escuche, por ejemplo en reuniones y decisiones, y puede causar una carga psicológica como estrés, aislamiento o presión para encajar. Este análisis salarial no puede medir esos efectos.",
+  ex_depts: ["A · Techo de cristal", "B · Suelo pegajoso", "C · Equilibrado", "D · Pocas mujeres, salario justo", "E · Desequilibrio extremo"],
   pay_pp: "Salario por persona", w_share: "Proporción de mujeres", vs_all: "vs. total", women_are: "Las mujeres están", pp: "p.p.", rep_under: "infrarrepresentadas", rep_over: "sobrerrepresentadas", rep_as_expected: "según lo esperado", v_rep_intro: "Las mujeres son el {a} de la plantilla.", v_under: "Están significativamente infrarrepresentadas en {levels}.", v_over: "Están significativamente sobrerrepresentadas en {levels}.",
   ex_company: "Tu empresa", ex_dept: "Departamento {x}",
   app_title: "Estimador de brecha salarial",
@@ -408,22 +561,65 @@ es: {
 <li><strong>Pruebas.</strong> Cada diferencia se divide entre su incertidumbre combinada para obtener una t de Student, con grados de libertad = N<sub>mujeres</sub> + N<sub>hombres</sub> − 2. El valor p bilateral es la probabilidad de llegar a una conclusión errónea (error de tipo I); confianza = 1 − p.</li>
 <li><strong>Reparto salarial vs plantilla.</strong> Se compara el cociente entre la masa salarial de hombres y mujeres con el cociente de su número. Si los hombres reciben una parte mayor del salario que su parte de la plantilla, cobran más por persona.</li>
 <li><strong>Representación por nivel.</strong> En cada nivel, la proporción de mujeres se compara con su proporción en el resto de la plantilla mediante la prueba exacta de Fisher bilateral, fiable incluso con grupos muy pequeños. Como se supone que todas las personas de un nivel cobran el mismo punto medio, esto muestra <em>de dónde</em> viene una brecha en el salario medio: la infrarrepresentación en niveles bien pagados baja la media de las mujeres y la sobrerrepresentación la sube.</li>
+<li><strong>Indicadores de transparencia salarial de la UE.</strong> Siguiendo la Directiva de transparencia salarial de la UE (2023/970), la brecha media y la mediana se muestran también respecto al salario de los hombres, junto con la proporción de mujeres en cada cuartil salarial (toda la plantilla ordenada por salario y dividida en cuatro grupos iguales). Se señala una brecha del 5 % o más: a partir de ese nivel la Directiva exige a las empresas justificar o corregir la brecha. Aquí estos valores se estiman a partir de los puntos medios.</li>
 </ol>
 <h3>Limitaciones</h3>
 <ul>
 <li>El salario medio es una estimación a partir de los puntos medios: solo puede detectar brechas debidas a cómo se reparten mujeres y hombres entre los niveles, no diferencias dentro de una misma banda.</li>
 <li>Los grupos pequeños (menos de ~5 personas) dan resultados poco fiables y pueden permitir identificar a personas.</li>
 <li>Que una diferencia sea estadísticamente significativa no prueba discriminación: indica que, con estos supuestos, es poco probable que se deba al azar.</li>
+<li>El análisis solo examina el salario. Un fuerte desequilibrio en la plantilla (p. ej., menos de un 30 % de mujeres, una regla habitual de «masa crítica») merece señalarse aunque el salario por persona sea igual. Al grupo infrarrepresentado se le puede pasar por alto o no escuchar, por ejemplo en reuniones y decisiones, y puede sufrir una carga psicológica como estrés, aislamiento o presión para encajar. Los datos salariales no muestran esos efectos.</li>
 </ul>
 <h3>Fuentes</h3>
 <ol class="src">
 <li><a href="https://doi.org/10.59161/JCGM100-2008E" target="_blank" rel="noopener">JCGM 100:2008 — Evaluation of measurement data: Guide to the expression of uncertainty in measurement (GUM)</a>. Joint Committee for Guides in Metrology / BIPM. La distribución uniforme (rectangular) se describe en el apartado 4.3.7 y la triangular en el 4.3.9. Descarga gratuita en la web del BIPM.</li>
 <li><a href="https://www.gik.kit.edu/downloads/%5BSCHW20%5DGUM_AVN_Teil1.pdf" target="_blank" rel="noopener">Schwarz, W. (2020): Methoden zur Bestimmung der Messunsicherheit nach GUM – Teil 1</a>. avn – Allgemeine Vermessungs-Nachrichten 127(2), 69–86. Resumen en alemán del método GUM, con las distribuciones uniforme y triangular (p. 75).</li>
 <li><a href="https://www.ttable.org/" target="_blank" rel="noopener">Student's t-distribution table (ttable.org)</a>. Tabla de referencia de valores críticos de t. La aplicación calcula valores p bilaterales exactos en lugar de leerlos de una tabla.</li>
+<li><a href="https://eur-lex.europa.eu/eli/dir/2023/970/oj" target="_blank" rel="noopener">Directive (EU) 2023/970 (Pay Transparency Directive)</a>. EUR-Lex. Indicadores para informar sobre la brecha salarial de género (artículo 9).</li>
 </ol>`
 },
 ca: {
   locale: "ca-ES",
+  women_lc: "dones", men_lc: "homes",
+  rep_btn: "Descarregar informe",
+  rep_making: "Preparant l'informe…",
+  rep_fail: "No s'ha pogut crear l'informe. Torna-ho a provar.",
+  rep_pdf_hint: "A la finestra d'impressió, tria «Desa com a PDF».",
+  rep_title: "Informe de bretxa salarial",
+  rep_generated: "Generat el {d} amb l'Estimador de bretxa salarial.",
+  rep_settings: "Supòsits",
+  rep_summary: "Resum",
+  rep_key: "Xifres clau",
+  rep_file: "informe-bretxa-salarial",
+  dist_tri_s: "Triangular",
+  dist_uni_s: "Uniforme",
+  ch_pyramid: "Dones i homes per nivell",
+  ch_contrib: "D'on ve la bretxa",
+  ch_contrib_d: "Quant puja (+) o baixa (−) cada nivell el salari mitjà de les dones respecte al dels homes. En conjunt, les barres sumen la bretxa del salari mitjà ({gap}).",
+  contrib_up: "Apuja la mitjana de les dones",
+  contrib_down: "Abaixa la mitjana de les dones",
+  eu_title: "Indicadors de transparència salarial de la UE",
+  eu_d: "Estimats com es presenten als informes de la Directiva de transparència salarial de la UE (2023/970): bretxes respecte al salari dels homes i proporció de dones a cada quartil salarial. Les medianes i els quartils s'estimen a partir dels punts mitjans.",
+  eu_mean: "Bretxa mitjana",
+  eu_median: "Bretxa mediana",
+  eu_th: "Llindar del 5 %",
+  eu_above: "Per sobre del 5 %",
+  eu_below: "Per sota del 5 %",
+  eu_quart: "Dones i homes per quartil salarial",
+  q1: "Q1 més baix",
+  q4: "Q4 més alt",
+  ch_pipe: "Proporció de dones per nivell",
+  ch_pipe_d: "Una línia plana vol dir que les dones estan igual de representades a tots els nivells; una línia descendent, que es perden pel camí cap amunt.",
+  ch_heat: "Sobre- i infrarepresentació",
+  ch_heat_d: "Proporció de dones a cada nivell menys la seva proporció al departament, en punts percentuals. Les cel·les grises no són estadísticament significatives.",
+  heat_over: "Dones sobrerepresentades",
+  heat_under: "Dones infrarepresentades",
+  heat_ns: "No significativa",
+  overall_w: "{p} dones en total",
+  first8: "Es mostren els primers 8 departaments.",
+  v_min_w: "Les dones són només el {a} de la plantilla ({r} homes per cada dona). Encara que el salari per persona sigui igual, estar tan infrarepresentades pot fer que se les passi per alt o no se les escolti, per exemple en reunions i decisions, i pot causar una càrrega psicològica com estrès, aïllament o pressió per encaixar. Aquesta anàlisi salarial no pot mesurar aquests efectes.",
+  v_min_m: "Els homes són només el {a} de la plantilla ({r} dones per cada home). Encara que el salari per persona sigui igual, estar tan infrarepresentats pot fer que se'ls passi per alt o no se'ls escolti, per exemple en reunions i decisions, i pot causar una càrrega psicològica com estrès, aïllament o pressió per encaixar. Aquesta anàlisi salarial no pot mesurar aquests efectes.",
+  ex_depts: ["A · Sostre de vidre", "B · Terra enganxós", "C · Equilibrat", "D · Poques dones, salari just", "E · Desequilibri extrem"],
   pay_pp: "Salari per persona", w_share: "Proporció de dones", vs_all: "vs. total", women_are: "Les dones estan", pp: "p.p.", rep_under: "infrarepresentades", rep_over: "sobrerepresentades", rep_as_expected: "segons l'esperat", v_rep_intro: "Les dones són el {a} de la plantilla.", v_under: "Estan significativament infrarepresentades a {levels}.", v_over: "Estan significativament sobrerepresentades a {levels}.",
   ex_company: "La teva empresa", ex_dept: "Departament {x}",
   app_title: "Estimador de bretxa salarial",
@@ -499,22 +695,65 @@ ca: {
 <li><strong>Proves.</strong> Cada diferència es divideix per la seva incertesa combinada per obtenir una t de Student, amb graus de llibertat = N<sub>dones</sub> + N<sub>homes</sub> − 2. El valor p bilateral és la probabilitat d'arribar a una conclusió errònia (error de tipus I); confiança = 1 − p.</li>
 <li><strong>Repartiment salarial vs plantilla.</strong> Es compara el quocient entre la massa salarial d'homes i dones amb el quocient del seu nombre. Si els homes reben una part del salari més gran que la seva part de la plantilla, cobren més per persona.</li>
 <li><strong>Representació per nivell.</strong> A cada nivell, la proporció de dones es compara amb la seva proporció en la resta de la plantilla amb la prova exacta de Fisher bilateral, fiable fins i tot amb grups molt petits. Com que se suposa que totes les persones d'un nivell cobren el mateix punt mitjà, això mostra <em>d'on</em> ve una bretxa en el salari mitjà: la infrarepresentació en nivells ben pagats abaixa la mitjana de les dones i la sobrerepresentació l'apuja.</li>
+<li><strong>Indicadors de transparència salarial de la UE.</strong> Seguint la Directiva de transparència salarial de la UE (2023/970), la bretxa mitjana i la mediana també es mostren respecte al salari dels homes, juntament amb la proporció de dones a cada quartil salarial (tota la plantilla ordenada per salari i dividida en quatre grups iguals). Es marca una bretxa del 5 % o més: a partir d'aquest nivell la Directiva exigeix a les empreses justificar o corregir la bretxa. Aquí aquests valors s'estimen a partir dels punts mitjans.</li>
 </ol>
 <h3>Limitacions</h3>
 <ul>
 <li>El salari mitjà és una estimació a partir dels punts mitjans: només pot detectar bretxes degudes a com es reparteixen dones i homes entre els nivells, no diferències dins d'una mateixa banda.</li>
 <li>Els grups petits (menys de ~5 persones) donen resultats poc fiables i poden permetre identificar persones.</li>
 <li>Que una diferència sigui estadísticament significativa no prova discriminació: indica que, amb aquests supòsits, és poc probable que sigui fruit de l'atzar.</li>
+<li>L'anàlisi només examina el salari. Un fort desequilibri a la plantilla (p. ex., menys d'un 30 % de dones, una regla habitual de «massa crítica») val la pena assenyalar-lo encara que el salari per persona sigui igual. El grup infrarepresentat pot passar desapercebut o no ser escoltat, per exemple en reunions i decisions, i pot patir una càrrega psicològica com estrès, aïllament o pressió per encaixar. Les dades salarials no mostren aquests efectes.</li>
 </ul>
 <h3>Fonts</h3>
 <ol class="src">
 <li><a href="https://doi.org/10.59161/JCGM100-2008E" target="_blank" rel="noopener">JCGM 100:2008 — Evaluation of measurement data: Guide to the expression of uncertainty in measurement (GUM)</a>. Joint Committee for Guides in Metrology / BIPM. La distribució uniforme (rectangular) es descriu a l'apartat 4.3.7 i la triangular al 4.3.9. Descàrrega gratuïta al web del BIPM.</li>
 <li><a href="https://www.gik.kit.edu/downloads/%5BSCHW20%5DGUM_AVN_Teil1.pdf" target="_blank" rel="noopener">Schwarz, W. (2020): Methoden zur Bestimmung der Messunsicherheit nach GUM – Teil 1</a>. avn – Allgemeine Vermessungs-Nachrichten 127(2), 69–86. Resum en alemany del mètode GUM, amb les distribucions uniforme i triangular (p. 75).</li>
 <li><a href="https://www.ttable.org/" target="_blank" rel="noopener">Student's t-distribution table (ttable.org)</a>. Taula de referència de valors crítics de t. L'aplicació calcula valors p bilaterals exactes en lloc de llegir-los d'una taula.</li>
+<li><a href="https://eur-lex.europa.eu/eli/dir/2023/970/oj" target="_blank" rel="noopener">Directive (EU) 2023/970 (Pay Transparency Directive)</a>. EUR-Lex. Indicadors per informar sobre la bretxa salarial de gènere (article 9).</li>
 </ol>`
 },
 de: {
   locale: "de-DE",
+  women_lc: "Frauen", men_lc: "Männer",
+  rep_btn: "Bericht herunterladen",
+  rep_making: "Bericht wird erstellt …",
+  rep_fail: "Der Bericht konnte nicht erstellt werden. Bitte erneut versuchen.",
+  rep_pdf_hint: "Wählen Sie im Druckfenster „Als PDF speichern“.",
+  rep_title: "Bericht zur Entgeltlücke",
+  rep_generated: "Erstellt am {d} mit dem Entgeltlücken-Schätzer.",
+  rep_settings: "Annahmen",
+  rep_summary: "Zusammenfassung",
+  rep_key: "Kennzahlen",
+  rep_file: "entgeltluecken-bericht",
+  dist_tri_s: "Dreieckig",
+  dist_uni_s: "Gleichverteilt",
+  ch_pyramid: "Frauen und Männer nach Stufe",
+  ch_contrib: "Woher die Lücke kommt",
+  ch_contrib_d: "Wie stark jede Stufe das Durchschnittsgehalt der Frauen im Vergleich zu den Männern erhöht (+) oder senkt (−). Zusammen ergeben die Balken die Lücke beim Durchschnittsgehalt ({gap}).",
+  contrib_up: "Erhöht den Durchschnitt der Frauen",
+  contrib_down: "Senkt den Durchschnitt der Frauen",
+  eu_title: "EU-Indikatoren zur Entgelttransparenz",
+  eu_d: "Geschätzt wie in Berichten nach der EU-Entgelttransparenzrichtlinie (2023/970): Lücken relativ zum Gehalt der Männer und Frauenanteil in jedem Gehaltsquartil. Mediane und Quartile werden aus den Bandmitten geschätzt.",
+  eu_mean: "Mittlere Lücke",
+  eu_median: "Median-Lücke",
+  eu_th: "5-%-Schwelle",
+  eu_above: "Über 5 %",
+  eu_below: "Unter 5 %",
+  eu_quart: "Frauen und Männer je Gehaltsquartil",
+  q1: "Q1 niedrigstes",
+  q4: "Q4 höchstes",
+  ch_pipe: "Frauenanteil nach Stufe",
+  ch_pipe_d: "Eine flache Linie bedeutet, dass Frauen auf allen Stufen gleich vertreten sind; eine fallende Linie, dass sie auf dem Weg nach oben verloren gehen.",
+  ch_heat: "Über- und Unterrepräsentation",
+  ch_heat_d: "Frauenanteil auf jeder Stufe minus ihr Anteil in der Abteilung, in Prozentpunkten. Graue Zellen sind statistisch nicht signifikant.",
+  heat_over: "Frauen überrepräsentiert",
+  heat_under: "Frauen unterrepräsentiert",
+  heat_ns: "Nicht signifikant",
+  overall_w: "{p} Frauen insgesamt",
+  first8: "Es werden die ersten 8 Abteilungen gezeigt.",
+  v_min_w: "Frauen machen nur {a} des Personals aus ({r} Männer pro Frau). Selbst wenn das Gehalt pro Person gleich ist, kann eine so starke Unterrepräsentation dazu führen, dass Frauen leichter übersehen oder nicht gehört werden, etwa in Besprechungen und bei Entscheidungen, und sie kann psychisch belasten, z. B. durch Stress, Isolation oder Anpassungsdruck. Diese Gehaltsanalyse kann solche Effekte nicht messen.",
+  v_min_m: "Männer machen nur {a} des Personals aus ({r} Frauen pro Mann). Selbst wenn das Gehalt pro Person gleich ist, kann eine so starke Unterrepräsentation dazu führen, dass Männer leichter übersehen oder nicht gehört werden, etwa in Besprechungen und bei Entscheidungen, und sie kann psychisch belasten, z. B. durch Stress, Isolation oder Anpassungsdruck. Diese Gehaltsanalyse kann solche Effekte nicht messen.",
+  ex_depts: ["A · Gläserne Decke", "B · Klebriger Boden", "C · Ausgewogen", "D · Wenige Frauen, faire Bezahlung", "E · Extremes Ungleichgewicht"],
   pay_pp: "Gehalt pro Person", w_share: "Frauenanteil", vs_all: "vs. gesamt", women_are: "Frauen sind", pp: "Pp.", rep_under: "unterrepräsentiert", rep_over: "überrepräsentiert", rep_as_expected: "wie erwartet", v_rep_intro: "Frauen machen {a} des Personals aus.", v_under: "Sie sind signifikant unterrepräsentiert in {levels}.", v_over: "Sie sind signifikant überrepräsentiert in {levels}.",
   ex_company: "Ihr Unternehmen", ex_dept: "Abteilung {x}",
   app_title: "Entgeltlücken-Schätzer",
@@ -590,18 +829,21 @@ de: {
 <li><strong>Tests.</strong> Jeder Unterschied wird durch seine kombinierte Unsicherheit geteilt. Das ergibt einen Student-t-Wert mit Freiheitsgraden = N<sub>Frauen</sub> + N<sub>Männer</sub> − 2. Der zweiseitige p-Wert ist die Wahrscheinlichkeit eines Fehlschlusses (Fehler 1. Art). Konfidenz = 1 − p.</li>
 <li><strong>Gehaltsanteil vs. Personalanteil.</strong> Das Verhältnis der Gesamtvergütung von Männern zu Frauen wird mit dem Verhältnis ihrer Personalzahlen verglichen. Ist der Gehaltsanteil der Männer größer als ihr Personalanteil, verdienen sie pro Kopf mehr.</li>
 <li><strong>Vertretung nach Stufe.</strong> Für jede Stufe wird der Frauenanteil mit ihrem Anteil am übrigen Personal verglichen, mit dem zweiseitigen exakten Test nach Fisher, der auch bei sehr kleinen Gruppen zuverlässig ist. Da für alle Personen einer Stufe dieselbe Bandmitte angenommen wird, zeigt dies, <em>woher</em> eine Lücke beim Durchschnittsgehalt kommt: Unterrepräsentation in gut bezahlten Stufen senkt den Durchschnitt der Frauen, Überrepräsentation hebt ihn.</li>
+<li><strong>EU-Indikatoren zur Entgelttransparenz.</strong> Nach der EU-Entgelttransparenzrichtlinie (2023/970) werden die mittlere und die Median-Lücke zusätzlich relativ zum Gehalt der Männer gezeigt, zusammen mit dem Frauenanteil in jedem Gehaltsquartil (das gesamte Personal nach Gehalt sortiert und in vier gleich große Gruppen geteilt). Eine Lücke von 5 % oder mehr wird markiert: Ab dieser Höhe verlangt die Richtlinie, dass Arbeitgeber die Lücke begründen oder beheben. Hier werden diese Werte aus den Bandmitten geschätzt.</li>
 </ol>
 <h3>Grenzen</h3>
 <ul>
 <li>Das Durchschnittsgehalt ist eine Schätzung auf Basis der Bandmitten. Es zeigt nur Lücken, die durch die Verteilung von Frauen und Männern auf die Stufen entstehen, nicht Unterschiede innerhalb eines Bandes.</li>
 <li>Kleine Gruppen (unter ~5 Personen) liefern unzuverlässige Ergebnisse und können einzelne Personen erkennbar machen.</li>
 <li>Statistische Signifikanz ist kein Beweis für Diskriminierung. Sie zeigt nur, dass der Unterschied unter diesen Annahmen wahrscheinlich nicht zufällig ist.</li>
+<li>Die Analyse betrachtet nur das Gehalt. Ein starkes Ungleichgewicht beim Personal (z. B. weniger als etwa 30 % Frauen, eine gängige Faustregel für eine „kritische Masse“) ist auch bei gleichem Gehalt pro Person erwähnenswert. Die unterrepräsentierte Gruppe kann leichter übersehen oder nicht gehört werden, etwa in Besprechungen und bei Entscheidungen, und psychisch belastet sein, z. B. durch Stress, Isolation oder Anpassungsdruck. Gehaltsdaten zeigen solche Effekte nicht.</li>
 </ul>
 <h3>Quellen</h3>
 <ol class="src">
 <li><a href="https://doi.org/10.59161/JCGM100-2008E" target="_blank" rel="noopener">JCGM 100:2008 — Evaluation of measurement data: Guide to the expression of uncertainty in measurement (GUM)</a>. Joint Committee for Guides in Metrology / BIPM. Die Gleich- (Rechteck-)verteilung wird in Abschnitt 4.3.7 beschrieben, die Dreiecksverteilung in Abschnitt 4.3.9. Kostenloser Download auf der Website des BIPM.</li>
 <li><a href="https://www.gik.kit.edu/downloads/%5BSCHW20%5DGUM_AVN_Teil1.pdf" target="_blank" rel="noopener">Schwarz, W. (2020): Methoden zur Bestimmung der Messunsicherheit nach GUM – Teil 1</a>. avn – Allgemeine Vermessungs-Nachrichten 127(2), 69–86. Deutschsprachige Zusammenfassung der GUM-Methode, einschließlich Gleich- und Dreiecksverteilung (S. 75).</li>
 <li><a href="https://www.ttable.org/" target="_blank" rel="noopener">Student's t-distribution table (ttable.org)</a>. Referenztabelle kritischer t-Werte. Die App berechnet exakte zweiseitige p-Werte, statt sie aus einer Tabelle abzulesen.</li>
+<li><a href="https://eur-lex.europa.eu/eli/dir/2023/970/oj" target="_blank" rel="noopener">Directive (EU) 2023/970 (Pay Transparency Directive)</a>. EUR-Lex. Indikatoren für die Berichterstattung über das geschlechtsspezifische Entgeltgefälle (Artikel 9).</li>
 </ol>`
 }
 };
@@ -613,29 +855,35 @@ const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 // ---------- state ----------
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 function example() {
   const lang = state ? state.lang : detectLang(), T = I18N[lang];
-  const dn = x => T.ex_dept.replace("{x}", x);
+  const lv = i => T.level + " " + ROMAN[i];
+  // Invented example data: four departments with different gender patterns
   return {
     v: 1, lang,
     org: T.ex_company, year: new Date().getFullYear(), currency: "EUR",
     distribution: "triangular", reference: "mean", thresholds: [0.99, 0.95, 0.90],
     levels: [
-      { name: "R1", min: 18522, max: 25189, mid: 21856 },
-      { name: "R2", min: 27522, max: 45622, mid: 36572 },
-      { name: "R3", min: 39677, max: 63250, mid: 51464 },
-      { name: "R4", min: 55000, max: 88555, mid: 71778 }],
+      { name: lv(0), min: 20000, max: 26000, mid: "" },
+      { name: lv(1), min: 27000, max: 36000, mid: "" },
+      { name: lv(2), min: 34000, max: 46000, mid: "" },
+      { name: lv(3), min: 43000, max: 57000, mid: "" },
+      { name: lv(4), min: 55000, max: 70000, mid: "" },
+      { name: lv(5), min: 70000, max: 90000, mid: "" }],
     depts: [
-      { name: dn("A"), w: [4, 8, 0, 0], m: [3, 8, 3, 2] },
-      { name: dn("B"), w: [4, 8, 1, 0], m: [15, 15, 5, 2] },
-      { name: dn("C"), w: [21, 37, 7, 1], m: [41, 37, 16, 7] }],
+      { name: T.ex_depts[0], w: [180, 160, 110, 40, 12, 3], m: [150, 170, 180, 140, 85, 40] },
+      { name: T.ex_depts[1], w: [520, 140, 60, 25, 10, 4], m: [110, 150, 190, 120, 60, 25] },
+      { name: T.ex_depts[2], w: [120, 210, 280, 60, 22, 8], m: [125, 205, 285, 58, 23, 8] },
+      { name: T.ex_depts[3], w: [20, 30, 40, 10, 3, 1], m: [120, 180, 240, 60, 18, 6] },
+      { name: T.ex_depts[4], w: [400, 80, 15, 3, 1, 0], m: [60, 120, 200, 180, 120, 60] }],
     active: 0
   };
 }
 function blank() {
   return { v: 1, lang: state.lang, org: "", year: new Date().getFullYear(), currency: "EUR",
     distribution: "triangular", reference: "mean", thresholds: [0.99, 0.95, 0.90],
-    levels: [{ name: "1", min: "", max: "", mid: "" }, { name: "2", min: "", max: "", mid: "" }, { name: "3", min: "", max: "", mid: "" }],
+    levels: [0, 1, 2].map(i => ({ name: tr("level") + " " + ROMAN[i], min: "", max: "", mid: "" })),
     depts: [{ name: tr("new_dept"), w: [0, 0, 0], m: [0, 0, 0] }], active: 0 };
 }
 function detectLang() {
@@ -644,12 +892,9 @@ function detectLang() {
 }
 let state = null;
 try { const s = JSON.parse(localStorage.getItem(STORE)); if (valid(s)) state = s; } catch (e) {}
+// Replace the first version's four-level example (R1-R4) with the current example
+if (state && state.levels.map(l => l.name).join() === "R1,R2,R3,R4") state = null;
 if (!state) state = example();
-else {
-  const ren = { CVC: "A", CES: "B", "Earth Science": "C" };
-  state.depts.forEach(d => { if (ren[d.name]) d.name = I18N[state.lang || "en"].ex_dept.replace("{x}", ren[d.name]); });
-  if (state.org === "Example") state.org = I18N[state.lang || "en"].ex_company;
-}
 function valid(s) { return s && Array.isArray(s.levels) && Array.isArray(s.depts) && s.depts.every(d => Array.isArray(d.w) && Array.isArray(d.m)); }
 function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} }
 function normalize() {
@@ -718,8 +963,16 @@ function relabelExample(to) {
   if (langs.some(l => I18N[l].ex_company === state.org)) state.org = T.ex_company;
   state.depts.forEach(d => {
     for (const l of langs) {
+      const k = I18N[l].ex_depts.indexOf(d.name);
+      if (k >= 0) { d.name = T.ex_depts[k]; break; }
       const m = d.name.match(new RegExp("^" + I18N[l].ex_dept.replace("{x}", "([A-Z])") + "$"));
       if (m) { d.name = T.ex_dept.replace("{x}", m[1]); break; }
+    }
+  });
+  state.levels.forEach(lv => {
+    for (const l of langs) {
+      const m = lv.name.match(new RegExp("^" + I18N[l].level + " ([IVX]+)$"));
+      if (m) { lv.name = T.level + " " + m[1]; break; }
     }
   });
 }
@@ -801,7 +1054,7 @@ function viewBands(v) {
     <div class="row" style="margin-top:10px"><button class="b" id="add">${esc(tr("add_level"))}</button></div>
   </section>
   <section class="card"><h2>${esc(tr("paste_title"))}</h2><p class="help">${esc(tr("paste_help"))}</p>
-    <textarea id="paste" rows="5" style="width:100%" placeholder="R1&#9;18522&#9;25189&#10;R2&#9;27522&#9;45622"></textarea>
+    <textarea id="paste" rows="5" style="width:100%" placeholder="Level I&#9;20000&#9;26000&#10;Level II&#9;27000&#9;36000"></textarea>
     <div class="row" style="margin-top:8px"><button class="b primary" id="doPaste">${esc(tr("apply"))}</button></div>
   </section>`;
   const warn = () => {
@@ -831,7 +1084,7 @@ function viewBands(v) {
   });
   $("#add").onclick = () => {
     const last = state.levels[state.levels.length - 1];
-    state.levels.push({ name: String(state.levels.length + 1), min: last && last.max !== "" ? last.max : "", max: "", mid: "" });
+    state.levels.push({ name: tr("level") + " " + (ROMAN[state.levels.length] || state.levels.length + 1), min: last && last.max !== "" ? last.max : "", max: "", mid: "" });
     normalize(); save(); render();
   };
   $("#doPaste").onclick = () => {
@@ -852,7 +1105,7 @@ function deptChips(onPick, withAll) {
 }
 function staffWarnings(d) {
   const out = [];
-  const W = tr("women").toLowerCase(), M = tr("men").toLowerCase();
+  const W = tr("women_lc"), M = tr("men_lc");
   state.levels.forEach((l, i) => {
     const w = +d.w[i] || 0, m = +d.m[i] || 0;
     if (w + m === 0) return;
@@ -917,17 +1170,19 @@ function viewResults(v) {
     v.innerHTML = `<section class="card"><div class="warn">${esc(tr("bands_title"))}: ${esc(Object.values(bp)[0] || tr("bands_help"))}</div><a href="#bands">${esc(tr("tab_bands"))} →</a></section>`;
     return;
   }
-  v.innerHTML = `<section class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(tr("results_title"))}${state.org ? " · " + esc(state.org) : ""}${state.year ? " · " + esc(state.year) : ""}</h2></div>
+  v.innerHTML = `<section class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(tr("results_title"))}${state.org ? " · " + esc(state.org) : ""}${state.year ? " · " + esc(state.year) : ""}</h2><span class="row" id="repBtns"></span></div>
     <div style="margin-top:10px">${deptChips(null, state.depts.length > 1)}</div></section><div id="res"></div>`;
+  reportButtons($("#repBtns"));
   v.querySelectorAll("[data-dept]").forEach(b => b.onclick = () => { state.active = b.dataset.dept === "all" ? "all" : +b.dataset.dept; scenario = null; save(); render(); });
   if (state.active === "all") renderAll($("#res")); else renderDept($("#res"), state.active);
 }
 
 function verdictHTML(r) {
   const m = r.mean, parts = [];
-  if (Math.abs(m.diff) < 0.5) parts.push(tr("v_equal"));
+  const same = Math.abs(m.diff) < 0.5;
+  if (same) parts.push(tr("v_equal"));
   else parts.push(tr(m.diff < 0 ? "v_lower" : "v_higher", { pct: pct(Math.abs(m.rel)) }));
-  if (m.label === "HiSig" || m.label === "Sig") parts.push(tr("v_sig", { label: tr("lab_" + m.label), conf: conf(m.confidence) }));
+  if (same) { /* nothing to test */ } else if (m.label === "HiSig" || m.label === "Sig") parts.push(tr("v_sig", { label: tr("lab_" + m.label), conf: conf(m.confidence) }));
   else if (m.label === "MidSig") parts.push(tr("v_mid", { conf: conf(m.confidence) }));
   else if (m.label === "NotSig") parts.push(tr("v_not", { conf: conf(m.confidence) }));
   let html = `<p><strong>${esc(parts[0])}</strong> ${esc(parts.slice(1).join(" "))}</p>`;
@@ -939,6 +1194,10 @@ function verdictHTML(r) {
   if (under) reps.push(tr("v_under", { levels: under }));
   if (over) reps.push(tr("v_over", { levels: over }));
   if (reps.length) html += `<p>${esc(tr("v_rep_intro", { a: pct(r.women / (r.women + r.men), 0) }))} ${esc(reps.join(" "))}</p>`;
+  // strong headcount imbalance: pay data can't show its other effects
+  const wShare = r.women / (r.women + r.men);
+  if (wShare < 0.3) html += `<p class="note">${esc(tr("v_min_w", { a: pct(wShare, 0), r: num(r.men / r.women, 1) }))}</p>`;
+  else if (wShare > 0.7) html += `<p class="note">${esc(tr("v_min_m", { a: pct(1 - wShare, 0), r: num(r.women / r.men, 1) }))}</p>`;
   if (r.men !== r.women && Math.abs(r.total.rel) > Math.abs(m.rel) + 0.02) html += `<p class="help" style="margin:0">${esc(tr("v_total", { pct: pct(Math.abs(r.total.rel)), r: num(Math.max(r.men, r.women) / Math.min(r.men, r.women), 1) }))}</p>`;
   return html;
 }
@@ -964,8 +1223,13 @@ function renderDept(el, idx) {
       `<dt>${esc(tr("head_ratio"))}</dt><dd>${num(r.ratio.headcount_ratio, 2)}</dd><dt>${esc(tr("pay_ratio"))}</dt><dd>${num(r.ratio.pay_ratio, 2)} ± ${num(r.ratio.error, 2)}</dd>`)}
   </div>
   <section class="card"><div class="charts">
-    <div><h3 style="margin-top:0">${esc(tr("ch_head"))}</h3><div class="legend"><span style="--c:var(--w)">${esc(tr("women"))}</span><span style="--c:var(--m)">${esc(tr("men"))}</span></div><div id="chHead"></div></div>
+    <div><h3 style="margin-top:0">${esc(tr("ch_pyramid"))}</h3><div class="legend"><span style="--c:var(--w)">${esc(tr("women"))}</span><span style="--c:var(--m)">${esc(tr("men"))}</span></div><div id="chHead"></div></div>
     <div><h3 style="margin-top:0">${esc(tr("ch_mean"))}</h3><div class="legend"><span style="--c:var(--w)">${esc(tr("women"))}</span><span style="--c:var(--m)">${esc(tr("men"))}</span></div><div id="chMean"></div></div>
+  </div></section>
+  <section class="card"><div class="charts">
+    <div><h3 style="margin-top:0">${esc(tr("ch_contrib"))}</h3><p class="help">${esc(tr("ch_contrib_d", { gap: money(r.mean.diff) }))}</p>
+      <div class="legend"><span style="--c:var(--pos)">${esc(tr("contrib_up"))}</span><span style="--c:var(--neg)">${esc(tr("contrib_down"))}</span></div><div id="chContrib"></div></div>
+    <div id="euCard"></div>
   </div></section>
   <section class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(tr("per_level"))}</h2><span class="row" id="lvlBtns"></span></div>
     <p class="help">${esc(tr("per_level_d", { p: pct(r.women / (r.women + r.men), 1) }))}</p>
@@ -974,8 +1238,10 @@ function renderDept(el, idx) {
     ${warns.length ? warns.map(w => `<div class="warn">${esc(w)}</div>`).join("") : ""}
   </section>
   <section class="card whatif" id="whatif"></section>`;
-  chartHeadcount($("#chHead"), r);
+  chartPyramid($("#chHead"), r);
   chartMeans($("#chMean"), [{ name: d.name, r }]);
+  chartContrib($("#chContrib"), r);
+  euCard($("#euCard"), r);
   tableButtons($("#lvlBtns"), () => tsvLevels(d, r), (d.name || "department") + "-levels.csv");
   renderWhatIf($("#whatif"), idx);
 }
@@ -992,7 +1258,12 @@ function renderAll(el) {
         <td class="n">${pct(r.total.rel)}</td><td>${badge(r.total.label)}</td>
         <td class="n">${pct(r.ratio.excess)}</td><td>${badge(r.ratio.label)}</td></tr>`).join("")}</tbody></table></div>
   </section>
+  <section class="card"><h3 style="margin-top:0">${esc(tr("ch_pipe"))}</h3><p class="help">${esc(tr("ch_pipe_d"))}</p><div id="chPipe"></div></section>
+  <section class="card"><h3 style="margin-top:0">${esc(tr("ch_heat"))}</h3><p class="help">${esc(tr("ch_heat_d"))}</p>
+    <div class="legend"><span style="--c:var(--pos)">${esc(tr("heat_over"))}</span><span style="--c:var(--neg)">${esc(tr("heat_under"))}</span><span style="--c:var(--hover)">${esc(tr("heat_ns"))}</span></div><div id="heat"></div></section>
   <section class="card"><h3 style="margin-top:0">${esc(tr("ch_mean"))}</h3><div class="legend"><span style="--c:var(--w)">${esc(tr("women"))}</span><span style="--c:var(--m)">${esc(tr("men"))}</span></div><div id="chAll"></div></section>`;
+  chartPipeline($("#chPipe"), rs);
+  heatmap($("#heat"), rs);
   chartMeans($("#chAll"), rs);
   tableButtons($("#allBtns"), () => tsvAll(rs), "departments.csv");
 }
@@ -1060,7 +1331,7 @@ function chartHeadcount(el, r) {
   el.innerHTML = s; bindTips(el.querySelector("svg"));
 }
 function chartMeans(el, items) {
-  const rowH = items.length === 1 ? 80 : 46, W = Math.max(300, Math.round(el.clientWidth) || 460), L = 110, R = 16, T = 8, B = 26, H = T + B + rowH * items.length;
+  const rowH = items.length === 1 ? 80 : 46, W = Math.max(300, Math.round(el.clientWidth) || 460), L = Math.min(160, Math.round(W * 0.36)), R = 16, T = 8, B = 26, H = T + B + rowH * items.length;
   let lo = Infinity, hi = -Infinity;
   items.forEach(({ r }) => { [["women", "err_women"], ["men", "err_men"]].forEach(([a, e]) => { lo = Math.min(lo, r.mean[a] - r.mean[e]); hi = Math.max(hi, r.mean[a] + r.mean[e]); }); });
   const pad = (hi - lo) * 0.1 || 1000; lo = Math.max(0, lo - pad); hi = hi + pad;
@@ -1071,7 +1342,7 @@ function chartMeans(el, items) {
   for (let v = lo; v <= hi + 1e-6; v += step) s += `<line x1="${x(v)}" x2="${x(v)}" y1="${T}" y2="${H - B}" stroke="var(--grid)"/><text x="${x(v)}" y="${H - 8}" text-anchor="middle">${new Intl.NumberFormat(loc(), { notation: "compact", maximumFractionDigits: 1 }).format(v)}</text>`;
   items.forEach(({ name, r }, i) => {
     const cy = T + rowH * i + rowH / 2;
-    s += `<text class="lbl" x="${L - 10}" y="${cy + 4}" text-anchor="end">${esc(name.length > 15 ? name.slice(0, 14) + "…" : name)}</text>`;
+    s += `<text class="lbl" x="${L - 10}" y="${cy + 4}" text-anchor="end">${esc(name.length > 24 ? name.slice(0, 23) + "…" : name)}</text>`;
     [["women", "err_women", "var(--w)", -7], ["men", "err_men", "var(--m)", 7]].forEach(([a, e, c, dy]) => {
       const v = r.mean[a], er = r.mean[e], yy = cy + dy;
       const t_ = `<b>${esc(name)} · ${esc(tr(a))}</b><br>${money(v)} ± ${money(er)}`;
@@ -1084,6 +1355,133 @@ function chartMeans(el, items) {
   });
   s += `</svg>`;
   el.innerHTML = s; bindTips(el.querySelector("svg"));
+}
+
+// ---------- new charts ----------
+const svgW = el => Math.max(300, Math.round(el.clientWidth) || 460);
+const compact = v => new Intl.NumberFormat(loc(), { notation: "compact", maximumFractionDigits: 1 }).format(v);
+const moneyC = v => (v < 0 ? "−" : v > 0 ? "+" : "") + money(Math.abs(v));
+
+function chartPyramid(el, r) {
+  const W = svgW(el), rowH = Math.max(22, Math.min(34, 200 / r.levels.length)), T = 6, B = 24;
+  const H = T + B + rowH * r.levels.length, lab = 78, P = 22, half = (W - lab) / 2;
+  const max = niceMax(Math.max(1, ...r.levels.map(l => Math.max(l.women, l.men))));
+  const sx = v => (half - P) * v / max;
+  const bh = Math.min(20, rowH - 6);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(tr("ch_pyramid"))}">`;
+  [0, 0.5, 1].forEach(f => {
+    const xl = half - sx(f * max), xr = half + lab + sx(f * max);
+    s += `<line x1="${xl}" x2="${xl}" y1="${T}" y2="${H - B}" stroke="var(--grid)"/><line x1="${xr}" x2="${xr}" y1="${T}" y2="${H - B}" stroke="var(--grid)"/>`;
+    s += `<text x="${xl}" y="${H - 8}" text-anchor="middle">${num(f * max)}</text><text x="${xr}" y="${H - 8}" text-anchor="middle">${num(f * max)}</text>`;
+  });
+  r.levels.slice().reverse().forEach((l, i) => {
+    const y = T + rowH * i + (rowH - bh) / 2, cy = T + rowH * i + rowH / 2;
+    const ww = sx(l.women), mw = sx(l.men), rr = Math.min(4, bh / 2);
+    const t_ = `<b>${esc(l.level)}</b><br>${esc(tr("women"))}: ${num(l.women)}<br>${esc(tr("men"))}: ${num(l.men)}<br>${esc(tr("w_share"))}: ${l.share_women == null ? "–" : pct(l.share_women, 1)}`;
+    s += `<g data-tip="${esc(t_)}"><rect x="0" y="${T + rowH * i}" width="${W}" height="${rowH}" fill="transparent"/>`;
+    if (ww > 0) s += `<path d="M${half},${y} H${half - ww + Math.min(rr, ww)} q-${Math.min(rr, ww)},0 -${Math.min(rr, ww)},${Math.min(rr, ww)} V${y + bh - Math.min(rr, ww)} q0,${Math.min(rr, ww)} ${Math.min(rr, ww)},${Math.min(rr, ww)} H${half} Z" fill="var(--w)"/>`;
+    if (mw > 0) s += `<path d="M${half + lab},${y} H${half + lab + mw - Math.min(rr, mw)} q${Math.min(rr, mw)},0 ${Math.min(rr, mw)},${Math.min(rr, mw)} V${y + bh - Math.min(rr, mw)} q0,${Math.min(rr, mw)} -${Math.min(rr, mw)},${Math.min(rr, mw)} H${half + lab} Z" fill="var(--m)"/>`;
+    s += `<text class="lbl" x="${half + lab / 2}" y="${cy + 4}" text-anchor="middle">${esc(l.level.length > 11 ? l.level.slice(0, 10) + "…" : l.level)}</text></g>`;
+  });
+  el.innerHTML = s + "</svg>"; bindTips(el.querySelector("svg"));
+}
+
+function chartContrib(el, r) {
+  const W = svgW(el), H = 230, T = 10, B = 26, n = r.levels.length;
+  const vals = r.levels.map(l => l.contribution || 0);
+  const m = niceMax(Math.max(1, ...vals.map(Math.abs)));
+  const L = 14 + 7 * compact(-m).length, gw = (W - L - 8) / n, bw = Math.min(24, gw * 0.55);
+  const y = v => T + (H - T - B) * (m - v) / (2 * m);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(tr("ch_contrib"))}">`;
+  [-m, -m / 2, 0, m / 2, m].forEach(v => s += `<line x1="${L}" x2="${W - 8}" y1="${y(v)}" y2="${y(v)}" stroke="${v === 0 ? "var(--axis)" : "var(--grid)"}"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${(v > 0 ? "+" : v < 0 ? "−" : "") + compact(Math.abs(v))}</text>`);
+  r.levels.forEach((l, i) => {
+    const v = vals[i], cx = L + gw * i + gw / 2, y0 = y(0), y1 = y(v), h = Math.abs(y1 - y0), rr = Math.min(4, h / 2);
+    const t_ = `<b>${esc(l.level)}</b><br>${moneyC(v)}`;
+    s += `<g data-tip="${esc(t_)}"><rect x="${cx - gw / 2}" y="${T}" width="${gw}" height="${H - T - B}" fill="transparent"/>`;
+    if (h > 0.5) s += v > 0
+      ? `<path d="M${cx - bw / 2},${y0} V${y1 + rr} q0,-${rr} ${rr},-${rr} H${cx + bw / 2 - rr} q${rr},0 ${rr},${rr} V${y0} Z" fill="var(--pos)"/>`
+      : `<path d="M${cx - bw / 2},${y0} V${y1 - rr} q0,${rr} ${rr},${rr} H${cx + bw / 2 - rr} q${rr},0 ${rr},-${rr} V${y0} Z" fill="var(--neg)"/>`;
+    s += `<text class="lbl" x="${cx}" y="${H - 8}" text-anchor="middle">${esc(l.level.replace(/^\S+\s+(?=[IVX]+$)/, ""))}</text></g>`;
+  });
+  el.innerHTML = s + "</svg>"; bindTips(el.querySelector("svg"));
+}
+
+function euCard(el, r) {
+  const e = r.eu, sgn = v => (v > 0 ? "+" : v < 0 ? "−" : "") + pct(Math.abs(v), 1);
+  el.innerHTML = `<h3 style="margin-top:0">${esc(tr("eu_title"))}</h3><p class="help">${esc(tr("eu_d"))}</p>
+    <div class="tiles">
+      <div class="tile"><div class="k">${esc(tr("eu_mean"))}</div><div class="v">${sgn(e.mean_gap)}</div><div class="s">${money(r.mean.women)} / ${money(r.mean.men)}</div></div>
+      <div class="tile"><div class="k">${esc(tr("eu_median"))}</div><div class="v">${sgn(e.median_gap)}</div><div class="s">${money(e.median_women)} / ${money(e.median_men)}</div></div>
+      <div class="tile"><div class="k">${esc(tr("eu_th"))}</div><div class="flag" style="color:${e.above_threshold ? "var(--bad)" : "var(--good)"}">${e.above_threshold ? "⚠ " + esc(tr("eu_above")) : "✓ " + esc(tr("eu_below"))}</div></div>
+    </div>
+    <div style="font-size:13px;color:var(--ink2);margin-bottom:4px">${esc(tr("eu_quart"))}</div>
+    <div class="legend"><span style="--c:var(--w)">${esc(tr("women"))}</span><span style="--c:var(--m)">${esc(tr("men"))}</span></div><div id="chQuart"></div>`;
+  const c = $("#chQuart", el), W = svgW(c), H = 170, T = 6, B = 24, L = 36, gw = (W - L - 8) / 4, bw = Math.min(46, gw * 0.6);
+  const y = v => T + (H - T - B) * (1 - v);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(tr("eu_quart"))}">`;
+  [0, 0.5, 1].forEach(v => s += `<line x1="${L}" x2="${W - 8}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${pct(v, 0)}</text>`);
+  e.quartiles.forEach((q, i) => {
+    const sw = isFinite(q.share_women) ? q.share_women : 0, cx = L + gw * i + gw / 2;
+    const lab = i === 0 ? tr("q1") : i === 3 ? tr("q4") : "Q" + (i + 1);
+    const t_ = `<b>${esc(lab)}</b><br>${esc(tr("women"))}: ${pct(sw, 1)}<br>${esc(tr("men"))}: ${pct(1 - sw, 1)}`;
+    s += `<g data-tip="${esc(t_)}"><rect x="${cx - bw / 2}" y="${y(1)}" width="${bw}" height="${y(sw) - y(1) - (sw > 0 && sw < 1 ? 2 : 0)}" fill="var(--m)" rx="3"/>
+      <rect x="${cx - bw / 2}" y="${y(sw)}" width="${bw}" height="${y(0) - y(sw)}" fill="var(--w)" rx="3"/>
+      <text class="lbl" x="${cx}" y="${H - 8}" text-anchor="middle">${esc(lab)}</text>
+      ${sw >= 0.12 ? `<text x="${cx}" y="${(y(sw) + y(0)) / 2 + 4}" text-anchor="middle" style="fill:#fff;font-size:11px">${pct(sw, 0)}</text>` : ""}</g>`;
+  });
+  c.innerHTML = s + "</svg>"; bindTips(c.querySelector("svg"));
+}
+
+function chartPipeline(el, items) {
+  const its = items.slice(0, 8), W = svgW(el), H = 280, T = 10, B = 26, L = 64, R = 40;
+  const n = state.levels.length, x = i => L + (W - L - R) * (n === 1 ? 0.5 : i / (n - 1)), y = v => T + (H - T - B) * (1 - v);
+  const dashes = ["", "6 4", "2 3", "10 3 2 3", "", "6 4", "2 3", "10 3 2 3"];
+  const mark = (k, cx, cy, c) => {
+    const sh = k % 5;
+    if (sh === 0) return `<circle cx="${cx}" cy="${cy}" r="4.5" fill="${c}" stroke="var(--surface)" stroke-width="1.5"/>`;
+    if (sh === 1) return `<rect x="${cx - 4}" y="${cy - 4}" width="8" height="8" fill="${c}" stroke="var(--surface)" stroke-width="1.5"/>`;
+    if (sh === 2) return `<path d="M${cx},${cy - 5} L${cx + 5},${cy + 4} L${cx - 5},${cy + 4} Z" fill="${c}" stroke="var(--surface)" stroke-width="1.5"/>`;
+    if (sh === 3) return `<path d="M${cx},${cy - 5.5} L${cx + 5.5},${cy} L${cx},${cy + 5.5} L${cx - 5.5},${cy} Z" fill="${c}" stroke="var(--surface)" stroke-width="1.5"/>`;
+    return `<path d="M${cx - 4.5},${cy - 4.5} L${cx + 4.5},${cy + 4.5} M${cx + 4.5},${cy - 4.5} L${cx - 4.5},${cy + 4.5}" stroke="${c}" stroke-width="2.5"/>`;
+  };
+  let s = `<div class="legend" style="flex-wrap:wrap">${its.map((it, k) => `<span style="--c:var(--s${k + 1})">${esc(it.name)} · ${esc(tr("overall_w", { p: pct(it.r.women / (it.r.women + it.r.men), 0) }))}</span>`).join("")}</div>`;
+  s += `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(tr("ch_pipe"))}">`;
+  [0, 0.25, 0.5, 0.75, 1].forEach(v => s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${pct(v, 0)}</text>`);
+  const shortL = nm => W < 560 ? nm.replace(/^\S+\s+(?=[IVX]+$)/, "") : nm;
+  state.levels.forEach((l, i) => { const t_ = shortL(l.name); s += `<text class="lbl" x="${x(i)}" y="${H - 8}" text-anchor="middle">${esc(t_.length > 11 ? t_.slice(0, 10) + "…" : t_)}</text>`; });
+  its.forEach((it, k) => {
+    const c = `var(--s${k + 1})`, pts = it.r.levels.map((l, i) => l.share_women == null ? null : [x(i), y(l.share_women)]);
+    let d = "", pen = false;
+    pts.forEach(p => { if (!p) { pen = false; return; } d += (pen ? "L" : "M") + p[0] + "," + p[1] + " "; pen = true; });
+    s += `<path d="${d}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" ${dashes[k] ? `stroke-dasharray="${dashes[k]}"` : ""}/>`;
+    it.r.levels.forEach((l, i) => { if (!pts[i]) return;
+      const t_ = `<b>${esc(it.name)}</b><br>${esc(l.level)}: ${pct(l.share_women, 1)} ${esc(tr("women_lc"))}<br>${badge(l.label)}`;
+      s += `<g data-tip="${esc(t_)}"><circle cx="${pts[i][0]}" cy="${pts[i][1]}" r="10" fill="transparent"/>${mark(k, pts[i][0], pts[i][1], c)}</g>`; });
+  });
+  s += "</svg>" + (items.length > 8 ? `<p class="help">${esc(tr("first8"))}</p>` : "");
+  el.innerHTML = s; bindTips(el.querySelector("svg"));
+}
+
+function heatmap(el, items) {
+  const n = state.levels.length;
+  let h = `<div class="tbl-scroll"><div class="heat" style="grid-template-columns:minmax(130px,1.6fr) repeat(${n},minmax(44px,1fr));min-width:${130 + n * 48}px"><div></div>`;
+  h += state.levels.map(l => `<div class="hd" title="${esc(l.name)}">${esc(l.name.replace(/^\S+\s+(?=[IVX]+$)/, ""))}</div>`).join("");
+  items.forEach(({ name, r }) => {
+    h += `<div class="rl"><span title="${esc(name)}">${esc(name)}</span><span style="font-size:11px;color:var(--muted)">${esc(tr("overall_w", { p: pct(r.women / (r.women + r.men), 0) }))}</span></div>`;
+    r.levels.forEach(l => {
+      if (l.share_diff == null) { h += `<div class="c">–</div>`; return; }
+      const pp = l.share_diff * 100, sig = l.label === "HiSig" || l.label === "Sig", a = Math.abs(pp);
+      const tip = `${name} · ${l.level}: ${ppTxt(l.share_diff)} · ${tr("lab_" + l.label)}`;
+      let st = "";
+      if (sig && a >= 0.5) {
+        const alpha = a < 10 ? 0.3 : a < 25 ? 0.6 : 0.95;
+        st = `background:color-mix(in srgb, var(${pp > 0 ? "--pos" : "--neg"}) ${Math.round(alpha * 100)}%, transparent);color:${alpha > 0.5 ? "#fff" : "var(--ink)"};font-weight:${alpha > 0.5 ? 600 : 400}`;
+      }
+      const rd = Math.round(pp);
+      h += `<div class="c" style="${st}" title="${esc(tip)}">${(rd > 0 ? "+" : rd < 0 ? "−" : "") + num(Math.abs(rd), 0)}</div>`;
+    });
+  });
+  el.innerHTML = h + "</div></div>";
 }
 
 // ---------- export / tables ----------
@@ -1105,7 +1503,8 @@ function tsvAll(rs) {
     +(r.ratio.excess * 100).toFixed(2) + "%", +(r.ratio.confidence * 100).toFixed(3) + "%", tr("lab_" + r.ratio.label)])];
 }
 function tableButtons(el, rowsFn, fname) {
-  el.innerHTML = `<button class="b" data-a="copy">${esc(tr("copy_table"))}</button>${FRAMED ? "" : `<button class="b" data-a="dl">${esc(tr("download"))} CSV</button>`}`;
+  el.innerHTML = `<button class="b" data-a="copy">${esc(tr("copy_table"))}</button><button class="b" data-a="dl" hidden>${esc(tr("download"))} CSV</button>`;
+  canDownload().then(ok => { const b = el.querySelector("[data-a=dl]"); if (b) b.hidden = !ok; });
   el.querySelector("[data-a=copy]").onclick = e => copyText(rowsFn().map(r => r.join("\t")).join("\n"), e.target);
   const dl = el.querySelector("[data-a=dl]");
   if (dl) dl.onclick = () => download(fname, rowsFn().map(r => r.map(c => /[",;\n]/.test(String(c)) ? `"${String(c).replace(/"/g, '""')}"` : c).join(",")).join("\n"), "text/csv");
@@ -1118,9 +1517,15 @@ function fallbackCopy(text, done) {
   const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
   try { document.execCommand("copy"); done(); } catch (e) {} ta.remove();
 }
+// Downloads: a normal download on GitHub/GitLab; on the Claude page through its downloads capability
+let _canDl = null;
+function canDownload() {
+  if (!FRAMED) return Promise.resolve(true);
+  if (!_canDl) _canDl = (window.claude && window.claude.use ? window.claude.use("downloads") : Promise.resolve(null)).then(x => !!x, () => false);
+  return _canDl;
+}
 function download(name, text, type) {
-  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name;
-  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  saveFile(name, new TextEncoder().encode(text), type).catch(e => console.warn(e));
 }
 
 // ---------- modals ----------
@@ -1140,9 +1545,10 @@ function confirmBox(onYes, msg, yesLabel) {
 function exportBox() {
   const data = JSON.stringify({ app: "paygap-estimator", ...state, active: 0 }, null, 2);
   const m = modal(`<h2>${esc(tr("export_title"))}</h2><p class="help">${esc(tr("export_help"))}</p><textarea readonly>${esc(data)}</textarea>
-    <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="b" data-x>${esc(tr("close"))}</button>${FRAMED ? "" : `<button class="b" data-d>${esc(tr("download"))} .json</button>`}<button class="b primary" data-c>${esc(tr("copy"))}</button></div>`);
+    <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="b" data-x>${esc(tr("close"))}</button><button class="b" data-d hidden>${esc(tr("download"))} .json</button><button class="b primary" data-c>${esc(tr("copy"))}</button></div>`);
   m.querySelector("[data-x]").onclick = () => m.remove();
   m.querySelector("[data-c]").onclick = e => copyText(data, e.target);
+  canDownload().then(ok => { const b = m.querySelector("[data-d]"); if (b) b.hidden = !ok; });
   const dd = m.querySelector("[data-d]"); if (dd) dd.onclick = () => download(((state.org || "paygap") + "-" + (state.year || "")).replace(/\s+/g, "_") + ".json", data, "application/json");
 }
 function importBox() {
@@ -1167,6 +1573,344 @@ function importBox() {
 function viewMethod(v) {
   v.innerHTML = `<section class="card method"><h2>${esc(tr("method_title"))}</h2>${tr("method_html")}</section>`;
 }
+
+// ---------- report: Word (.docx) and print-to-PDF ----------
+// Builds one report model, then renders it as a .docx (own minimal writer, no libraries)
+// or as a print layout for "Save as PDF".
+
+const LIGHT = {
+  w: "#3aa36a", m: "#a06a2a", pos: "#2a78d6", neg: "#e34948", good: "#0a8f0a", bad: "#d03b3b",
+  grid: "#e1e0d9", axis: "#c3c2b7", muted: "#898781", ink: "#0b0b0b", ink2: "#52514e",
+  surface: "#ffffff", page: "#ffffff", hover: "#f3f2ee",
+  s1: "#2a78d6", s2: "#eb6834", s3: "#1baf7a", s4: "#eda100", s5: "#e87ba4", s6: "#008300", s7: "#6250d6", s8: "#e34948"
+};
+const REPORT_W = 640; // chart width in px
+
+// --- turn an on-screen chart into a PNG (light colours, fixed fonts) ---
+function svgToPng(svg, scale = 2) {
+  let src = svg.outerHTML
+    .replace(/var\(--([a-z0-9]+)\)/g, (m, k) => LIGHT[k] || "#888")
+    .replace(/ data-tip="[^"]*"/g, "")
+    .replace(/&nbsp;/g, "&#160;"); // HTML entity is not valid in an SVG image
+  if (!/xmlns=/.test(src)) src = src.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+  const vb = svg.getAttribute("viewBox").split(/\s+/).map(Number), w = vb[2], h = vb[3];
+  src = src.replace(/<svg([^>]*)>/, (m, a) => `<svg${a.replace(/\s(width|height)="[^"]*"/g, "")} width="${w}" height="${h}"><style>text{fill:${LIGHT.muted};font-family:Arial,Helvetica,sans-serif;font-size:11px}.lbl{fill:${LIGHT.ink2};font-size:12px}</style><rect width="100%" height="100%" fill="#ffffff"/>`);
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement("canvas");
+      c.width = Math.round(w * scale); c.height = Math.round(h * scale);
+      const ctx = c.getContext("2d"); ctx.scale(scale, scale); ctx.drawImage(img, 0, 0, w, h);
+      const dataUrl = c.toDataURL("image/png");
+      const bin = atob(dataUrl.split(",")[1]), bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      resolve({ dataUrl, bytes, w, h });
+    };
+    img.onerror = reject;
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(src);
+  });
+}
+// render a chart function off-screen at report width and return its PNG
+async function chartImage(fn, ...args) {
+  const host = document.createElement("div");
+  host.style.cssText = `position:absolute;left:-10000px;top:0;width:${REPORT_W}px`;
+  document.body.appendChild(host);
+  try { fn(host, ...args); const svg = host.querySelector("svg"); return svg ? await svgToPng(svg) : null; }
+  finally { host.remove(); }
+}
+// heatmap as SVG (the on-screen one is HTML)
+function heatSvg(el, items) {
+  const n = state.levels.length, W = REPORT_W, lab = 170, cw = (W - lab) / n, rh = 34, T = 22, H = T + rh * items.length + 4;
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%">`;
+  state.levels.forEach((l, i) => s += `<text x="${lab + cw * i + cw / 2}" y="14" text-anchor="middle">${esc(l.name.replace(/^\S+\s+(?=[IVX]+$)/, ""))}</text>`);
+  items.forEach(({ name, r }, j) => {
+    const y = T + rh * j;
+    s += `<text class="lbl" x="0" y="${y + rh / 2}">${esc(name.length > 26 ? name.slice(0, 25) + "…" : name)}</text>`;
+    r.levels.forEach((l, i) => {
+      const x = lab + cw * i;
+      let fill = LIGHT.hover, tc = LIGHT.muted, txt = "–";
+      if (l.share_diff != null) {
+        const pp = l.share_diff * 100, a = Math.abs(pp), rd = Math.round(pp), sig = l.label === "HiSig" || l.label === "Sig";
+        txt = (rd > 0 ? "+" : rd < 0 ? "−" : "") + Math.abs(rd);
+        if (sig && a >= 0.5) {
+          const alpha = a < 10 ? 0.3 : a < 25 ? 0.6 : 0.95, base = pp > 0 ? LIGHT.pos : LIGHT.neg;
+          fill = mix(base, alpha); tc = alpha > 0.5 ? "#ffffff" : LIGHT.ink;
+        }
+      }
+      s += `<rect x="${x + 1.5}" y="${y + 1.5}" width="${cw - 3}" height="${rh - 3}" rx="4" fill="${fill}"/><text x="${x + cw / 2}" y="${y + rh / 2 + 4}" text-anchor="middle" style="fill:${tc};font-size:12px">${txt}</text>`;
+    });
+  });
+  el.innerHTML = s + "</svg>";
+}
+function mix(hex, a) { // blend a colour with white
+  const n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255].map(v => Math.round(255 + (v - 255) * a));
+  return "#" + c.map(v => v.toString(16).padStart(2, "0")).join("");
+}
+function pipelineOnly(el, items) { chartPipeline(el, items); const lg = el.querySelector(".legend"); if (lg) lg.remove(); }
+
+// --- HTML (from the app's own text) to report paragraphs ---
+function htmlToBlocks(html) {
+  const d = document.createElement("div"); d.innerHTML = html;
+  const out = [];
+  const runs = node => {
+    const rs = [];
+    node.childNodes.forEach(c => {
+      if (c.nodeType === 3) rs.push({ text: c.textContent });
+      else if (c.tagName === "STRONG" || c.tagName === "B") rs.push({ text: c.textContent, b: true });
+      else if (c.tagName === "EM" || c.tagName === "I") rs.push({ text: c.textContent, i: true });
+      else if (c.tagName === "A") rs.push({ text: c.textContent }, { text: " (" + c.getAttribute("href") + ")", color: LIGHT.ink2 });
+      else if (c.tagName === "SUB") rs.push({ text: c.textContent });
+      else rs.push(...runs(c));
+    });
+    return rs;
+  };
+  d.childNodes.forEach(c => {
+    if (c.nodeType !== 1) return;
+    if (c.tagName === "H3") out.push({ t: "h3", text: c.textContent });
+    else if (c.tagName === "P") out.push({ t: "p", runs: runs(c), cls: c.className });
+    else if (c.tagName === "OL" || c.tagName === "UL") [...c.children].forEach((li, i) =>
+      out.push({ t: "p", runs: [{ text: (c.tagName === "OL" ? (i + 1) + ". " : "• ") }, ...runs(li)], indent: true }));
+  });
+  return out;
+}
+
+// --- the report model ---
+async function buildReport(onStep) {
+  const date = new Date().toLocaleDateString(loc(), { year: "numeric", month: "long", day: "numeric" });
+  const rs = state.depts.map(d => ({ name: d.name, d, r: analyzeDept(d) })).filter(x => !x.r.error);
+  const B = [];
+  const lgWM = { t: "legend", items: [{ text: tr("women"), color: LIGHT.w }, { text: tr("men"), color: LIGHT.m }] };
+  const sgn = v => (v > 0 ? "+" : v < 0 ? "−" : "") + pct(Math.abs(v), 1);
+  const lab = l => tr("lab_" + l);
+
+  B.push({ t: "title", text: tr("rep_title") + (state.org ? " · " + state.org : "") + (state.year ? " · " + state.year : "") });
+  B.push({ t: "p", runs: [{ text: tr("rep_generated", { d: date }), color: LIGHT.ink2 }] });
+  B.push({ t: "p", runs: [{ text: tr("rep_settings") + ": ", b: true },
+    { text: `${tr("dist")}: ${tr(state.distribution === "uniform" ? "dist_uni_s" : "dist_tri_s")} · ${tr("ref")}: ${tr(state.reference === "men" ? "ref_men" : "ref_mean")} · ${tr("thresholds")}: ${state.thresholds.map(t => pct(t, 1)).join(" / ")}` }] });
+
+  // summary
+  B.push({ t: "h1", text: tr("rep_summary") });
+  B.push({ t: "table", align: "lrrrlrrrl",
+    head: [tr("dept"), tr("women"), tr("men"), tr("t_mean"), "", tr("t_total"), tr("eu_mean"), tr("eu_median"), tr("eu_th")],
+    rows: rs.map(({ name, r }) => [name, num(r.women), num(r.men), sgn(r.mean.rel), lab(r.mean.label), sgn(r.total.rel),
+      sgn(r.eu.mean_gap), sgn(r.eu.median_gap), r.eu.above_threshold ? "⚠ " + tr("eu_above") : "✓ " + tr("eu_below")]) });
+  rs.forEach(({ name, r }) => {
+    const d = document.createElement("div"); d.innerHTML = verdictHTML(r);
+    const first = d.querySelector("p");
+    if (first) B.push({ t: "p", runs: [{ text: name + ": ", b: true }, ...htmlToBlocks(first.outerHTML)[0].runs] });
+  });
+
+  if (rs.length > 1) {
+    onStep && onStep();
+    B.push({ t: "h2", text: tr("ch_pipe") });
+    B.push({ t: "p", runs: [{ text: tr("ch_pipe_d"), color: LIGHT.ink2 }] });
+    B.push({ t: "legend", items: rs.slice(0, 8).map((x, k) => ({ text: x.name, color: LIGHT["s" + (k + 1)] })) });
+    B.push({ t: "img", ...(await chartImage(pipelineOnly, rs)) });
+    B.push({ t: "h2", text: tr("ch_heat") });
+    B.push({ t: "p", runs: [{ text: tr("ch_heat_d"), color: LIGHT.ink2 }] });
+    B.push({ t: "legend", items: [{ text: tr("heat_over"), color: LIGHT.pos }, { text: tr("heat_under"), color: LIGHT.neg }, { text: tr("heat_ns"), color: "#d3d1c7" }] });
+    B.push({ t: "img", ...(await chartImage(heatSvg, rs)) });
+  }
+
+  // one section per department
+  for (const { name, d, r } of rs) {
+    onStep && onStep();
+    B.push({ t: "pagebreak" });
+    B.push({ t: "h1", text: name });
+    const vd = document.createElement("div"); vd.innerHTML = verdictHTML(r);
+    htmlToBlocks(vd.innerHTML).forEach(b => B.push(b.cls === "note" ? { ...b, note: true } : b));
+    B.push({ t: "h2", text: tr("rep_key") });
+    B.push({ t: "table", align: "lrrrl",
+      head: ["", tr("women"), tr("men"), tr("gap"), tr("conf")],
+      rows: [
+        [tr("t_mean"), money(r.mean.women), money(r.mean.men), sgn(r.mean.rel), conf(r.mean.confidence) + " · " + lab(r.mean.label)],
+        [tr("t_total"), money(r.total.women), money(r.total.men), sgn(r.total.rel), conf(r.total.confidence) + " · " + lab(r.total.label)],
+        [tr("t_ratio"), "", "", sgn(r.ratio.excess), conf(r.ratio.confidence) + " · " + lab(r.ratio.label)],
+        [tr("eu_mean"), money(r.mean.women), money(r.mean.men), sgn(r.eu.mean_gap), r.eu.above_threshold ? "⚠ " + tr("eu_above") : "✓ " + tr("eu_below")],
+        [tr("eu_median"), money(r.eu.median_women), money(r.eu.median_men), sgn(r.eu.median_gap), ""]] });
+    B.push({ t: "h2", text: tr("ch_pyramid") }, lgWM, { t: "img", ...(await chartImage(chartPyramid, r)) });
+    B.push({ t: "h2", text: tr("ch_contrib") });
+    B.push({ t: "p", runs: [{ text: tr("ch_contrib_d", { gap: money(r.mean.diff) }), color: LIGHT.ink2 }] });
+    B.push({ t: "legend", items: [{ text: tr("contrib_up"), color: LIGHT.pos }, { text: tr("contrib_down"), color: LIGHT.neg }] });
+    B.push({ t: "img", ...(await chartImage(chartContrib, r)) });
+    B.push({ t: "h2", text: tr("eu_quart") }, lgWM, { t: "img", ...(await chartImage(quartOnly, r)) });
+    B.push({ t: "h2", text: tr("per_level") });
+    B.push({ t: "table", align: "lrrrrrrll",
+      head: [tr("level"), tr("women"), tr("men"), tr("pay_pp"), tr("w_share"), tr("vs_all"), tr("conf"), tr("women_are"), ""],
+      rows: r.levels.map(l => [l.level, num(l.women), num(l.men), money(l.midpoint), l.share_women == null ? "–" : pct(l.share_women, 1),
+        ppTxt(l.share_diff), conf(l.confidence), repTxt(l), lab(l.label)]) });
+    const warns = staffWarnings(d);
+    warns.forEach(w => B.push({ t: "p", runs: [{ text: "⚠ " + w, color: "#6b4a00" }] }));
+  }
+
+  // method
+  B.push({ t: "pagebreak" });
+  B.push({ t: "h1", text: tr("method_title") });
+  htmlToBlocks(tr("method_html")).forEach(b => B.push(b));
+  return B;
+}
+function quartOnly(el, r) { euCard(el, r); const svg = el.querySelector("#chQuart svg"); el.innerHTML = ""; if (svg) el.appendChild(svg); }
+
+// --- .docx writer ---
+const xe = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function crc32(buf) {
+  let t = crc32.t;
+  if (!t) { t = crc32.t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } }
+  let c = 0xFFFFFFFF; for (let i = 0; i < buf.length; i++) c = t[(c ^ buf[i]) & 255] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+function zipStore(files) { // files: [{name, data:Uint8Array}] -> Uint8Array (no compression)
+  const enc = new TextEncoder(), parts = [], central = [];
+  let off = 0;
+  const u16 = v => [v & 255, (v >> 8) & 255], u32 = v => [v & 255, (v >> 8) & 255, (v >> 16) & 255, (v >>> 24) & 255];
+  for (const f of files) {
+    const name = enc.encode(f.name), crc = crc32(f.data), sz = f.data.length;
+    const head = [...u32(0x04034b50), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0x21), ...u32(crc), ...u32(sz), ...u32(sz), ...u16(name.length), ...u16(0)];
+    parts.push(new Uint8Array(head), name, f.data);
+    central.push(new Uint8Array([...u32(0x02014b50), ...u16(20), ...u16(20), ...u16(0x0800), ...u16(0), ...u16(0), ...u16(0x21), ...u32(crc), ...u32(sz), ...u32(sz), ...u16(name.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(off)]), name);
+    off += head.length + name.length + sz;
+  }
+  const cdSize = central.reduce((a, b) => a + b.length, 0);
+  const end = new Uint8Array([...u32(0x06054b50), ...u16(0), ...u16(0), ...u16(files.length), ...u16(files.length), ...u32(cdSize), ...u32(off), ...u16(0)]);
+  const all = [...parts, ...central, end], out = new Uint8Array(all.reduce((a, b) => a + b.length, 0));
+  let p = 0; all.forEach(a => { out.set(a, p); p += a.length; });
+  return out;
+}
+function toDocx(blocks) {
+  const enc = new TextEncoder(), media = [];
+  const run = r => `<w:r><w:rPr>${r.b ? "<w:b/>" : ""}${r.i ? "<w:i/>" : ""}${r.color ? `<w:color w:val="${r.color.slice(1)}"/>` : ""}${r.size ? `<w:sz w:val="${r.size}"/>` : ""}</w:rPr><w:t xml:space="preserve">${xe(r.text)}</w:t></w:r>`;
+  const para = (runs, style, extra = "") => `<w:p><w:pPr>${style ? `<w:pStyle w:val="${style}"/>` : ""}${extra}</w:pPr>${runs.map(run).join("")}</w:p>`;
+  let body = "";
+  blocks.forEach((b, k) => { const nx = blocks[k + 1] || {}; b.keep = (b.t === "legend") || (b.t === "p" && (nx.t === "legend" || nx.t === "img")); });
+  for (const b of blocks) {
+    if (b.t === "title") body += para([{ text: b.text }], "Title");
+    else if (b.t === "h1") body += para([{ text: b.text }], "Heading1");
+    else if (b.t === "h2") body += para([{ text: b.text }], "Heading2");
+    else if (b.t === "h3") body += para([{ text: b.text }], "Heading3");
+    else if (b.t === "p") body += para(b.runs, null, (b.keep ? "<w:keepNext/>" : "") + (b.indent ? '<w:ind w:left="360"/>' : "") + (b.note ? '<w:pBdr><w:left w:val="single" w:sz="18" w:space="8" w:color="C3C2B7"/></w:pBdr><w:ind w:left="200"/>' : ""));
+    else if (b.t === "legend") body += para(b.items.flatMap(it => [{ text: "■ ", color: it.color, size: 22 }, { text: it.text + "     ", color: LIGHT.ink2, size: 18 }]), null, '<w:keepNext/><w:spacing w:after="40"/>');
+    else if (b.t === "pagebreak") body += '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
+    else if (b.t === "img" && b.bytes) {
+      const id = media.length + 1; media.push(b.bytes);
+      const cx = Math.round(Math.min(b.w, 600) * 9525), cy = Math.round(cx * b.h / b.w);
+      body += `<w:p><w:pPr><w:spacing w:after="160"/></w:pPr><w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/><wp:docPr id="${id}" name="Chart ${id}"/><wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:nvPicPr><pic:cNvPr id="${id}" name="chart${id}.png"/><pic:cNvPicPr/></pic:nvPicPr><pic:blipFill><a:blip r:embed="rIdImg${id}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>`;
+    } else if (b.t === "table") {
+      const cols = b.head.length, total = 9638;
+      const wt = b.head.map((h, i) => Math.min(24, Math.max(7.5, ...[h, ...b.rows.map(r => r[i])].map(c => Math.max(...String(c ?? "").split(/\s+/).map(x => x.length)) * 0.6 + String(c ?? "").length * 0.4))));
+      const sum = wt.reduce((a, c) => a + c, 0), widths = wt.map(x => Math.floor(total * x / sum));
+      const cell = (txt, i, head) => `<w:tc><w:tcPr><w:tcW w:w="${widths[i]}" w:type="dxa"/>${head ? '<w:shd w:val="clear" w:color="auto" w:fill="F1EFE8"/>' : ""}</w:tcPr><w:p><w:pPr><w:spacing w:before="40" w:after="40"/>${b.align && b.align[i] === "r" ? '<w:jc w:val="right"/>' : ""}</w:pPr>${run({ text: txt, b: head, size: 17, color: head ? LIGHT.ink2 : null })}</w:p></w:tc>`;
+      body += `<w:tbl><w:tblPr><w:tblW w:w="${total}" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="4" w:color="D3D1C7"/><w:bottom w:val="single" w:sz="4" w:color="D3D1C7"/><w:insideH w:val="single" w:sz="4" w:color="E1E0D9"/></w:tblBorders><w:tblCellMar><w:left w:w="80" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tblCellMar></w:tblPr><w:tblGrid>${widths.map(w => `<w:gridCol w:w="${w}"/>`).join("")}</w:tblGrid>`
+        + `<w:tr><w:trPr><w:tblHeader/></w:trPr>${b.head.map((h, i) => cell(h, i, true)).join("")}</w:tr>`
+        + b.rows.map(r => `<w:tr><w:trPr><w:cantSplit/></w:trPr>${r.map((c, i) => cell(c, i, false)).join("")}</w:tr>`).join("") + `</w:tbl>` + para([{ text: "" }]);
+    }
+  }
+  const doc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="567" w:footer="567" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+  const styles = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri" w:eastAsia="Calibri"/><w:sz w:val="21"/><w:color w:val="0B0B0B"/><w:lang w:val="${xe(loc())}"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="120" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>
+<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>
+<w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:basedOn w:val="Normal"/><w:qFormat/><w:pPr><w:spacing w:after="80"/></w:pPr><w:rPr><w:b/><w:sz w:val="40"/></w:rPr></w:style>
+<w:style w:type="paragraph" w:styleId="Heading1"><w:name w:val="heading 1"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:keepNext/><w:spacing w:before="240" w:after="120"/><w:outlineLvl w:val="0"/></w:pPr><w:rPr><w:b/><w:sz w:val="32"/></w:rPr></w:style>
+<w:style w:type="paragraph" w:styleId="Heading2"><w:name w:val="heading 2"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:keepNext/><w:spacing w:before="240" w:after="80"/><w:outlineLvl w:val="1"/></w:pPr><w:rPr><w:b/><w:sz w:val="25"/></w:rPr></w:style>
+<w:style w:type="paragraph" w:styleId="Heading3"><w:name w:val="heading 3"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/><w:pPr><w:keepNext/><w:spacing w:before="200" w:after="60"/><w:outlineLvl w:val="2"/></w:pPr><w:rPr><w:b/><w:sz w:val="22"/></w:rPr></w:style>
+</w:styles>`;
+  const types = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/></Types>`;
+  const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/></Relationships>`;
+  const docRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>${media.map((_, i) => `<Relationship Id="rIdImg${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/chart${i + 1}.png"/>`).join("")}</Relationships>`;
+  const core = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>${xe(blocks[0] ? blocks[0].text : tr("rep_title"))}</dc:title><dc:creator>${xe(tr("app_title"))}</dc:creator><dcterms:created xsi:type="dcterms:W3CDTF">${new Date().toISOString().slice(0, 19)}Z</dcterms:created></cp:coreProperties>`;
+  return zipStore([
+    { name: "[Content_Types].xml", data: enc.encode(types) },
+    { name: "_rels/.rels", data: enc.encode(rels) },
+    { name: "docProps/core.xml", data: enc.encode(core) },
+    { name: "word/document.xml", data: enc.encode(doc) },
+    { name: "word/styles.xml", data: enc.encode(styles) },
+    { name: "word/_rels/document.xml.rels", data: enc.encode(docRels) },
+    ...media.map((m, i) => ({ name: `word/media/chart${i + 1}.png`, data: m }))]);
+}
+
+// --- print layout (Save as PDF) ---
+function toPrintHTML(blocks) {
+  // keep each heading together with the chart or table that follows it
+  const out = []; let grp = null;
+  const flush = () => { if (grp) { out.push(`<section class="rg">${grp.join("\n")}</section>`); grp = null; } };
+  blocks.forEach(b => {
+    const h = blockHTML(b);
+    if (b.t === "h2") { flush(); grp = [h]; return; }
+    if (grp) { grp.push(h); if (b.t === "img" || b.t === "table") flush(); return; }
+    out.push(h);
+  });
+  flush();
+  return out.join("\n");
+}
+function blockHTML(b) {
+  const run = r => { const t = esc(r.text); const st = r.color ? ` style="color:${r.color}"` : ""; return r.b ? `<strong${st}>${t}</strong>` : r.i ? `<em${st}>${t}</em>` : st ? `<span${st}>${t}</span>` : t; };
+  {
+    if (b.t === "title") return `<h1 class="rt">${esc(b.text)}</h1>`;
+    if (b.t === "h1") return `<h2 class="r1">${esc(b.text)}</h2>`;
+    if (b.t === "h2") return `<h3 class="r2">${esc(b.text)}</h3>`;
+    if (b.t === "h3") return `<h4 class="r3">${esc(b.text)}</h4>`;
+    if (b.t === "p") return `<p class="${b.indent ? "ri" : ""}${b.note ? " rn" : ""}">${b.runs.map(run).join("")}</p>`;
+    if (b.t === "legend") return `<p class="rl">${b.items.map(it => `<span><i style="background:${it.color}"></i>${esc(it.text)}</span>`).join("")}</p>`;
+    if (b.t === "pagebreak") return `<div class="rpb"></div>`;
+    if (b.t === "img") return b.dataUrl ? `<img class="rimg" src="${b.dataUrl}" style="width:${Math.min(b.w, 640)}px">` : "";
+    if (b.t === "table") return `<table class="rtab"><thead><tr>${b.head.map((h, i) => `<th class="${b.align && b.align[i] === "r" ? "n" : ""}">${esc(h)}</th>`).join("")}</tr></thead><tbody>${b.rows.map(r => `<tr>${r.map((c, i) => `<td class="${b.align && b.align[i] === "r" ? "n" : ""}">${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+    return "";
+  }
+}
+
+// --- saving a file (Claude page: downloads capability; elsewhere: normal download) ---
+async function saveFile(name, bytes, type) {
+  if (FRAMED && window.claude && window.claude.use) {
+    const dl = await window.claude.use("downloads");
+    if (!dl) throw new Error("unavailable");
+    await dl.save({ filename: name, data: bytes });
+    return;
+  }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([bytes], { type })); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+const reportName = ext => ((tr("rep_file") + "-" + (state.org || "") + "-" + (state.year || "")).replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-+|-+$/g, "") || "report") + "." + ext;
+
+async function downloadDocx(btn, status) {
+  btn.disabled = true; status.textContent = tr("rep_making");
+  try {
+    const blocks = await buildReport();
+    await saveFile(reportName("docx"), toDocx(blocks), "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+    status.textContent = "";
+  } catch (e) { status.textContent = e && e.code === "declined" ? "" : tr("rep_fail"); console.error(e); }
+  btn.disabled = false;
+}
+async function printPdf(btn, status) {
+  btn.disabled = true; status.textContent = tr("rep_making");
+  try {
+    const blocks = await buildReport();
+    let root = document.getElementById("print-root");
+    if (!root) { root = document.createElement("div"); root.id = "print-root"; document.body.appendChild(root); }
+    root.innerHTML = toPrintHTML(blocks);
+    const imgs = [...root.querySelectorAll("img")];
+    await Promise.all(imgs.map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+    status.textContent = tr("rep_pdf_hint");
+    const old = document.title; document.title = reportName("pdf").replace(/\.pdf$/, "");
+    window.print();
+    document.title = old;
+  } catch (e) { status.textContent = tr("rep_fail"); console.error(e); }
+  btn.disabled = false;
+}
+function reportButtons(el) {
+  el.innerHTML = `<span class="muted" style="font-size:13px">${esc(tr("rep_btn"))}:</span>
+    ${FRAMED ? "" : `<button class="b" data-r="pdf">PDF</button>`}
+    <button class="b" data-r="docx">Word (.docx)</button>
+    <span class="muted" style="font-size:12px" data-r="st"></span>`;
+  const st = el.querySelector("[data-r=st]");
+  const p = el.querySelector("[data-r=pdf]"); if (p) p.onclick = () => printPdf(p, st);
+  const d = el.querySelector("[data-r=docx]"); d.onclick = () => downloadDocx(d, st);
+  canDownload().then(ok => { d.hidden = !ok; });
+}
+
 
 render();
 })();

@@ -5,29 +5,35 @@ const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 // ---------- state ----------
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 function example() {
   const lang = state ? state.lang : detectLang(), T = I18N[lang];
-  const dn = x => T.ex_dept.replace("{x}", x);
+  const lv = i => T.level + " " + ROMAN[i];
+  // Invented example data: four departments with different gender patterns
   return {
     v: 1, lang,
     org: T.ex_company, year: new Date().getFullYear(), currency: "EUR",
     distribution: "triangular", reference: "mean", thresholds: [0.99, 0.95, 0.90],
     levels: [
-      { name: "R1", min: 18522, max: 25189, mid: 21856 },
-      { name: "R2", min: 27522, max: 45622, mid: 36572 },
-      { name: "R3", min: 39677, max: 63250, mid: 51464 },
-      { name: "R4", min: 55000, max: 88555, mid: 71778 }],
+      { name: lv(0), min: 20000, max: 26000, mid: "" },
+      { name: lv(1), min: 27000, max: 36000, mid: "" },
+      { name: lv(2), min: 34000, max: 46000, mid: "" },
+      { name: lv(3), min: 43000, max: 57000, mid: "" },
+      { name: lv(4), min: 55000, max: 70000, mid: "" },
+      { name: lv(5), min: 70000, max: 90000, mid: "" }],
     depts: [
-      { name: dn("A"), w: [4, 8, 0, 0], m: [3, 8, 3, 2] },
-      { name: dn("B"), w: [4, 8, 1, 0], m: [15, 15, 5, 2] },
-      { name: dn("C"), w: [21, 37, 7, 1], m: [41, 37, 16, 7] }],
+      { name: T.ex_depts[0], w: [180, 160, 110, 40, 12, 3], m: [150, 170, 180, 140, 85, 40] },
+      { name: T.ex_depts[1], w: [520, 140, 60, 25, 10, 4], m: [110, 150, 190, 120, 60, 25] },
+      { name: T.ex_depts[2], w: [120, 210, 280, 60, 22, 8], m: [125, 205, 285, 58, 23, 8] },
+      { name: T.ex_depts[3], w: [20, 30, 40, 10, 3, 1], m: [120, 180, 240, 60, 18, 6] },
+      { name: T.ex_depts[4], w: [400, 80, 15, 3, 1, 0], m: [60, 120, 200, 180, 120, 60] }],
     active: 0
   };
 }
 function blank() {
   return { v: 1, lang: state.lang, org: "", year: new Date().getFullYear(), currency: "EUR",
     distribution: "triangular", reference: "mean", thresholds: [0.99, 0.95, 0.90],
-    levels: [{ name: "1", min: "", max: "", mid: "" }, { name: "2", min: "", max: "", mid: "" }, { name: "3", min: "", max: "", mid: "" }],
+    levels: [0, 1, 2].map(i => ({ name: tr("level") + " " + ROMAN[i], min: "", max: "", mid: "" })),
     depts: [{ name: tr("new_dept"), w: [0, 0, 0], m: [0, 0, 0] }], active: 0 };
 }
 function detectLang() {
@@ -36,12 +42,9 @@ function detectLang() {
 }
 let state = null;
 try { const s = JSON.parse(localStorage.getItem(STORE)); if (valid(s)) state = s; } catch (e) {}
+// Replace the first version's four-level example (R1-R4) with the current example
+if (state && state.levels.map(l => l.name).join() === "R1,R2,R3,R4") state = null;
 if (!state) state = example();
-else {
-  const ren = { CVC: "A", CES: "B", "Earth Science": "C" };
-  state.depts.forEach(d => { if (ren[d.name]) d.name = I18N[state.lang || "en"].ex_dept.replace("{x}", ren[d.name]); });
-  if (state.org === "Example") state.org = I18N[state.lang || "en"].ex_company;
-}
 function valid(s) { return s && Array.isArray(s.levels) && Array.isArray(s.depts) && s.depts.every(d => Array.isArray(d.w) && Array.isArray(d.m)); }
 function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {} }
 function normalize() {
@@ -110,8 +113,16 @@ function relabelExample(to) {
   if (langs.some(l => I18N[l].ex_company === state.org)) state.org = T.ex_company;
   state.depts.forEach(d => {
     for (const l of langs) {
+      const k = I18N[l].ex_depts.indexOf(d.name);
+      if (k >= 0) { d.name = T.ex_depts[k]; break; }
       const m = d.name.match(new RegExp("^" + I18N[l].ex_dept.replace("{x}", "([A-Z])") + "$"));
       if (m) { d.name = T.ex_dept.replace("{x}", m[1]); break; }
+    }
+  });
+  state.levels.forEach(lv => {
+    for (const l of langs) {
+      const m = lv.name.match(new RegExp("^" + I18N[l].level + " ([IVX]+)$"));
+      if (m) { lv.name = T.level + " " + m[1]; break; }
     }
   });
 }
@@ -193,7 +204,7 @@ function viewBands(v) {
     <div class="row" style="margin-top:10px"><button class="b" id="add">${esc(tr("add_level"))}</button></div>
   </section>
   <section class="card"><h2>${esc(tr("paste_title"))}</h2><p class="help">${esc(tr("paste_help"))}</p>
-    <textarea id="paste" rows="5" style="width:100%" placeholder="R1&#9;18522&#9;25189&#10;R2&#9;27522&#9;45622"></textarea>
+    <textarea id="paste" rows="5" style="width:100%" placeholder="Level I&#9;20000&#9;26000&#10;Level II&#9;27000&#9;36000"></textarea>
     <div class="row" style="margin-top:8px"><button class="b primary" id="doPaste">${esc(tr("apply"))}</button></div>
   </section>`;
   const warn = () => {
@@ -223,7 +234,7 @@ function viewBands(v) {
   });
   $("#add").onclick = () => {
     const last = state.levels[state.levels.length - 1];
-    state.levels.push({ name: String(state.levels.length + 1), min: last && last.max !== "" ? last.max : "", max: "", mid: "" });
+    state.levels.push({ name: tr("level") + " " + (ROMAN[state.levels.length] || state.levels.length + 1), min: last && last.max !== "" ? last.max : "", max: "", mid: "" });
     normalize(); save(); render();
   };
   $("#doPaste").onclick = () => {
@@ -244,7 +255,7 @@ function deptChips(onPick, withAll) {
 }
 function staffWarnings(d) {
   const out = [];
-  const W = tr("women").toLowerCase(), M = tr("men").toLowerCase();
+  const W = tr("women_lc"), M = tr("men_lc");
   state.levels.forEach((l, i) => {
     const w = +d.w[i] || 0, m = +d.m[i] || 0;
     if (w + m === 0) return;
@@ -309,17 +320,19 @@ function viewResults(v) {
     v.innerHTML = `<section class="card"><div class="warn">${esc(tr("bands_title"))}: ${esc(Object.values(bp)[0] || tr("bands_help"))}</div><a href="#bands">${esc(tr("tab_bands"))} →</a></section>`;
     return;
   }
-  v.innerHTML = `<section class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(tr("results_title"))}${state.org ? " · " + esc(state.org) : ""}${state.year ? " · " + esc(state.year) : ""}</h2></div>
+  v.innerHTML = `<section class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(tr("results_title"))}${state.org ? " · " + esc(state.org) : ""}${state.year ? " · " + esc(state.year) : ""}</h2><span class="row" id="repBtns"></span></div>
     <div style="margin-top:10px">${deptChips(null, state.depts.length > 1)}</div></section><div id="res"></div>`;
+  reportButtons($("#repBtns"));
   v.querySelectorAll("[data-dept]").forEach(b => b.onclick = () => { state.active = b.dataset.dept === "all" ? "all" : +b.dataset.dept; scenario = null; save(); render(); });
   if (state.active === "all") renderAll($("#res")); else renderDept($("#res"), state.active);
 }
 
 function verdictHTML(r) {
   const m = r.mean, parts = [];
-  if (Math.abs(m.diff) < 0.5) parts.push(tr("v_equal"));
+  const same = Math.abs(m.diff) < 0.5;
+  if (same) parts.push(tr("v_equal"));
   else parts.push(tr(m.diff < 0 ? "v_lower" : "v_higher", { pct: pct(Math.abs(m.rel)) }));
-  if (m.label === "HiSig" || m.label === "Sig") parts.push(tr("v_sig", { label: tr("lab_" + m.label), conf: conf(m.confidence) }));
+  if (same) { /* nothing to test */ } else if (m.label === "HiSig" || m.label === "Sig") parts.push(tr("v_sig", { label: tr("lab_" + m.label), conf: conf(m.confidence) }));
   else if (m.label === "MidSig") parts.push(tr("v_mid", { conf: conf(m.confidence) }));
   else if (m.label === "NotSig") parts.push(tr("v_not", { conf: conf(m.confidence) }));
   let html = `<p><strong>${esc(parts[0])}</strong> ${esc(parts.slice(1).join(" "))}</p>`;
@@ -331,6 +344,10 @@ function verdictHTML(r) {
   if (under) reps.push(tr("v_under", { levels: under }));
   if (over) reps.push(tr("v_over", { levels: over }));
   if (reps.length) html += `<p>${esc(tr("v_rep_intro", { a: pct(r.women / (r.women + r.men), 0) }))} ${esc(reps.join(" "))}</p>`;
+  // strong headcount imbalance: pay data can't show its other effects
+  const wShare = r.women / (r.women + r.men);
+  if (wShare < 0.3) html += `<p class="note">${esc(tr("v_min_w", { a: pct(wShare, 0), r: num(r.men / r.women, 1) }))}</p>`;
+  else if (wShare > 0.7) html += `<p class="note">${esc(tr("v_min_m", { a: pct(1 - wShare, 0), r: num(r.women / r.men, 1) }))}</p>`;
   if (r.men !== r.women && Math.abs(r.total.rel) > Math.abs(m.rel) + 0.02) html += `<p class="help" style="margin:0">${esc(tr("v_total", { pct: pct(Math.abs(r.total.rel)), r: num(Math.max(r.men, r.women) / Math.min(r.men, r.women), 1) }))}</p>`;
   return html;
 }
@@ -356,8 +373,13 @@ function renderDept(el, idx) {
       `<dt>${esc(tr("head_ratio"))}</dt><dd>${num(r.ratio.headcount_ratio, 2)}</dd><dt>${esc(tr("pay_ratio"))}</dt><dd>${num(r.ratio.pay_ratio, 2)} ± ${num(r.ratio.error, 2)}</dd>`)}
   </div>
   <section class="card"><div class="charts">
-    <div><h3 style="margin-top:0">${esc(tr("ch_head"))}</h3><div class="legend"><span style="--c:var(--w)">${esc(tr("women"))}</span><span style="--c:var(--m)">${esc(tr("men"))}</span></div><div id="chHead"></div></div>
+    <div><h3 style="margin-top:0">${esc(tr("ch_pyramid"))}</h3><div class="legend"><span style="--c:var(--w)">${esc(tr("women"))}</span><span style="--c:var(--m)">${esc(tr("men"))}</span></div><div id="chHead"></div></div>
     <div><h3 style="margin-top:0">${esc(tr("ch_mean"))}</h3><div class="legend"><span style="--c:var(--w)">${esc(tr("women"))}</span><span style="--c:var(--m)">${esc(tr("men"))}</span></div><div id="chMean"></div></div>
+  </div></section>
+  <section class="card"><div class="charts">
+    <div><h3 style="margin-top:0">${esc(tr("ch_contrib"))}</h3><p class="help">${esc(tr("ch_contrib_d", { gap: money(r.mean.diff) }))}</p>
+      <div class="legend"><span style="--c:var(--pos)">${esc(tr("contrib_up"))}</span><span style="--c:var(--neg)">${esc(tr("contrib_down"))}</span></div><div id="chContrib"></div></div>
+    <div id="euCard"></div>
   </div></section>
   <section class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(tr("per_level"))}</h2><span class="row" id="lvlBtns"></span></div>
     <p class="help">${esc(tr("per_level_d", { p: pct(r.women / (r.women + r.men), 1) }))}</p>
@@ -366,8 +388,10 @@ function renderDept(el, idx) {
     ${warns.length ? warns.map(w => `<div class="warn">${esc(w)}</div>`).join("") : ""}
   </section>
   <section class="card whatif" id="whatif"></section>`;
-  chartHeadcount($("#chHead"), r);
+  chartPyramid($("#chHead"), r);
   chartMeans($("#chMean"), [{ name: d.name, r }]);
+  chartContrib($("#chContrib"), r);
+  euCard($("#euCard"), r);
   tableButtons($("#lvlBtns"), () => tsvLevels(d, r), (d.name || "department") + "-levels.csv");
   renderWhatIf($("#whatif"), idx);
 }
@@ -384,7 +408,12 @@ function renderAll(el) {
         <td class="n">${pct(r.total.rel)}</td><td>${badge(r.total.label)}</td>
         <td class="n">${pct(r.ratio.excess)}</td><td>${badge(r.ratio.label)}</td></tr>`).join("")}</tbody></table></div>
   </section>
+  <section class="card"><h3 style="margin-top:0">${esc(tr("ch_pipe"))}</h3><p class="help">${esc(tr("ch_pipe_d"))}</p><div id="chPipe"></div></section>
+  <section class="card"><h3 style="margin-top:0">${esc(tr("ch_heat"))}</h3><p class="help">${esc(tr("ch_heat_d"))}</p>
+    <div class="legend"><span style="--c:var(--pos)">${esc(tr("heat_over"))}</span><span style="--c:var(--neg)">${esc(tr("heat_under"))}</span><span style="--c:var(--hover)">${esc(tr("heat_ns"))}</span></div><div id="heat"></div></section>
   <section class="card"><h3 style="margin-top:0">${esc(tr("ch_mean"))}</h3><div class="legend"><span style="--c:var(--w)">${esc(tr("women"))}</span><span style="--c:var(--m)">${esc(tr("men"))}</span></div><div id="chAll"></div></section>`;
+  chartPipeline($("#chPipe"), rs);
+  heatmap($("#heat"), rs);
   chartMeans($("#chAll"), rs);
   tableButtons($("#allBtns"), () => tsvAll(rs), "departments.csv");
 }
@@ -452,7 +481,7 @@ function chartHeadcount(el, r) {
   el.innerHTML = s; bindTips(el.querySelector("svg"));
 }
 function chartMeans(el, items) {
-  const rowH = items.length === 1 ? 80 : 46, W = Math.max(300, Math.round(el.clientWidth) || 460), L = 110, R = 16, T = 8, B = 26, H = T + B + rowH * items.length;
+  const rowH = items.length === 1 ? 80 : 46, W = Math.max(300, Math.round(el.clientWidth) || 460), L = Math.min(160, Math.round(W * 0.36)), R = 16, T = 8, B = 26, H = T + B + rowH * items.length;
   let lo = Infinity, hi = -Infinity;
   items.forEach(({ r }) => { [["women", "err_women"], ["men", "err_men"]].forEach(([a, e]) => { lo = Math.min(lo, r.mean[a] - r.mean[e]); hi = Math.max(hi, r.mean[a] + r.mean[e]); }); });
   const pad = (hi - lo) * 0.1 || 1000; lo = Math.max(0, lo - pad); hi = hi + pad;
@@ -463,7 +492,7 @@ function chartMeans(el, items) {
   for (let v = lo; v <= hi + 1e-6; v += step) s += `<line x1="${x(v)}" x2="${x(v)}" y1="${T}" y2="${H - B}" stroke="var(--grid)"/><text x="${x(v)}" y="${H - 8}" text-anchor="middle">${new Intl.NumberFormat(loc(), { notation: "compact", maximumFractionDigits: 1 }).format(v)}</text>`;
   items.forEach(({ name, r }, i) => {
     const cy = T + rowH * i + rowH / 2;
-    s += `<text class="lbl" x="${L - 10}" y="${cy + 4}" text-anchor="end">${esc(name.length > 15 ? name.slice(0, 14) + "…" : name)}</text>`;
+    s += `<text class="lbl" x="${L - 10}" y="${cy + 4}" text-anchor="end">${esc(name.length > 24 ? name.slice(0, 23) + "…" : name)}</text>`;
     [["women", "err_women", "var(--w)", -7], ["men", "err_men", "var(--m)", 7]].forEach(([a, e, c, dy]) => {
       const v = r.mean[a], er = r.mean[e], yy = cy + dy;
       const t_ = `<b>${esc(name)} · ${esc(tr(a))}</b><br>${money(v)} ± ${money(er)}`;
@@ -476,6 +505,133 @@ function chartMeans(el, items) {
   });
   s += `</svg>`;
   el.innerHTML = s; bindTips(el.querySelector("svg"));
+}
+
+// ---------- new charts ----------
+const svgW = el => Math.max(300, Math.round(el.clientWidth) || 460);
+const compact = v => new Intl.NumberFormat(loc(), { notation: "compact", maximumFractionDigits: 1 }).format(v);
+const moneyC = v => (v < 0 ? "−" : v > 0 ? "+" : "") + money(Math.abs(v));
+
+function chartPyramid(el, r) {
+  const W = svgW(el), rowH = Math.max(22, Math.min(34, 200 / r.levels.length)), T = 6, B = 24;
+  const H = T + B + rowH * r.levels.length, lab = 78, P = 22, half = (W - lab) / 2;
+  const max = niceMax(Math.max(1, ...r.levels.map(l => Math.max(l.women, l.men))));
+  const sx = v => (half - P) * v / max;
+  const bh = Math.min(20, rowH - 6);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(tr("ch_pyramid"))}">`;
+  [0, 0.5, 1].forEach(f => {
+    const xl = half - sx(f * max), xr = half + lab + sx(f * max);
+    s += `<line x1="${xl}" x2="${xl}" y1="${T}" y2="${H - B}" stroke="var(--grid)"/><line x1="${xr}" x2="${xr}" y1="${T}" y2="${H - B}" stroke="var(--grid)"/>`;
+    s += `<text x="${xl}" y="${H - 8}" text-anchor="middle">${num(f * max)}</text><text x="${xr}" y="${H - 8}" text-anchor="middle">${num(f * max)}</text>`;
+  });
+  r.levels.slice().reverse().forEach((l, i) => {
+    const y = T + rowH * i + (rowH - bh) / 2, cy = T + rowH * i + rowH / 2;
+    const ww = sx(l.women), mw = sx(l.men), rr = Math.min(4, bh / 2);
+    const t_ = `<b>${esc(l.level)}</b><br>${esc(tr("women"))}: ${num(l.women)}<br>${esc(tr("men"))}: ${num(l.men)}<br>${esc(tr("w_share"))}: ${l.share_women == null ? "–" : pct(l.share_women, 1)}`;
+    s += `<g data-tip="${esc(t_)}"><rect x="0" y="${T + rowH * i}" width="${W}" height="${rowH}" fill="transparent"/>`;
+    if (ww > 0) s += `<path d="M${half},${y} H${half - ww + Math.min(rr, ww)} q-${Math.min(rr, ww)},0 -${Math.min(rr, ww)},${Math.min(rr, ww)} V${y + bh - Math.min(rr, ww)} q0,${Math.min(rr, ww)} ${Math.min(rr, ww)},${Math.min(rr, ww)} H${half} Z" fill="var(--w)"/>`;
+    if (mw > 0) s += `<path d="M${half + lab},${y} H${half + lab + mw - Math.min(rr, mw)} q${Math.min(rr, mw)},0 ${Math.min(rr, mw)},${Math.min(rr, mw)} V${y + bh - Math.min(rr, mw)} q0,${Math.min(rr, mw)} -${Math.min(rr, mw)},${Math.min(rr, mw)} H${half + lab} Z" fill="var(--m)"/>`;
+    s += `<text class="lbl" x="${half + lab / 2}" y="${cy + 4}" text-anchor="middle">${esc(l.level.length > 11 ? l.level.slice(0, 10) + "…" : l.level)}</text></g>`;
+  });
+  el.innerHTML = s + "</svg>"; bindTips(el.querySelector("svg"));
+}
+
+function chartContrib(el, r) {
+  const W = svgW(el), H = 230, T = 10, B = 26, n = r.levels.length;
+  const vals = r.levels.map(l => l.contribution || 0);
+  const m = niceMax(Math.max(1, ...vals.map(Math.abs)));
+  const L = 14 + 7 * compact(-m).length, gw = (W - L - 8) / n, bw = Math.min(24, gw * 0.55);
+  const y = v => T + (H - T - B) * (m - v) / (2 * m);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(tr("ch_contrib"))}">`;
+  [-m, -m / 2, 0, m / 2, m].forEach(v => s += `<line x1="${L}" x2="${W - 8}" y1="${y(v)}" y2="${y(v)}" stroke="${v === 0 ? "var(--axis)" : "var(--grid)"}"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${(v > 0 ? "+" : v < 0 ? "−" : "") + compact(Math.abs(v))}</text>`);
+  r.levels.forEach((l, i) => {
+    const v = vals[i], cx = L + gw * i + gw / 2, y0 = y(0), y1 = y(v), h = Math.abs(y1 - y0), rr = Math.min(4, h / 2);
+    const t_ = `<b>${esc(l.level)}</b><br>${moneyC(v)}`;
+    s += `<g data-tip="${esc(t_)}"><rect x="${cx - gw / 2}" y="${T}" width="${gw}" height="${H - T - B}" fill="transparent"/>`;
+    if (h > 0.5) s += v > 0
+      ? `<path d="M${cx - bw / 2},${y0} V${y1 + rr} q0,-${rr} ${rr},-${rr} H${cx + bw / 2 - rr} q${rr},0 ${rr},${rr} V${y0} Z" fill="var(--pos)"/>`
+      : `<path d="M${cx - bw / 2},${y0} V${y1 - rr} q0,${rr} ${rr},${rr} H${cx + bw / 2 - rr} q${rr},0 ${rr},-${rr} V${y0} Z" fill="var(--neg)"/>`;
+    s += `<text class="lbl" x="${cx}" y="${H - 8}" text-anchor="middle">${esc(l.level.replace(/^\S+\s+(?=[IVX]+$)/, ""))}</text></g>`;
+  });
+  el.innerHTML = s + "</svg>"; bindTips(el.querySelector("svg"));
+}
+
+function euCard(el, r) {
+  const e = r.eu, sgn = v => (v > 0 ? "+" : v < 0 ? "−" : "") + pct(Math.abs(v), 1);
+  el.innerHTML = `<h3 style="margin-top:0">${esc(tr("eu_title"))}</h3><p class="help">${esc(tr("eu_d"))}</p>
+    <div class="tiles">
+      <div class="tile"><div class="k">${esc(tr("eu_mean"))}</div><div class="v">${sgn(e.mean_gap)}</div><div class="s">${money(r.mean.women)} / ${money(r.mean.men)}</div></div>
+      <div class="tile"><div class="k">${esc(tr("eu_median"))}</div><div class="v">${sgn(e.median_gap)}</div><div class="s">${money(e.median_women)} / ${money(e.median_men)}</div></div>
+      <div class="tile"><div class="k">${esc(tr("eu_th"))}</div><div class="flag" style="color:${e.above_threshold ? "var(--bad)" : "var(--good)"}">${e.above_threshold ? "⚠ " + esc(tr("eu_above")) : "✓ " + esc(tr("eu_below"))}</div></div>
+    </div>
+    <div style="font-size:13px;color:var(--ink2);margin-bottom:4px">${esc(tr("eu_quart"))}</div>
+    <div class="legend"><span style="--c:var(--w)">${esc(tr("women"))}</span><span style="--c:var(--m)">${esc(tr("men"))}</span></div><div id="chQuart"></div>`;
+  const c = $("#chQuart", el), W = svgW(c), H = 170, T = 6, B = 24, L = 36, gw = (W - L - 8) / 4, bw = Math.min(46, gw * 0.6);
+  const y = v => T + (H - T - B) * (1 - v);
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(tr("eu_quart"))}">`;
+  [0, 0.5, 1].forEach(v => s += `<line x1="${L}" x2="${W - 8}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${pct(v, 0)}</text>`);
+  e.quartiles.forEach((q, i) => {
+    const sw = isFinite(q.share_women) ? q.share_women : 0, cx = L + gw * i + gw / 2;
+    const lab = i === 0 ? tr("q1") : i === 3 ? tr("q4") : "Q" + (i + 1);
+    const t_ = `<b>${esc(lab)}</b><br>${esc(tr("women"))}: ${pct(sw, 1)}<br>${esc(tr("men"))}: ${pct(1 - sw, 1)}`;
+    s += `<g data-tip="${esc(t_)}"><rect x="${cx - bw / 2}" y="${y(1)}" width="${bw}" height="${y(sw) - y(1) - (sw > 0 && sw < 1 ? 2 : 0)}" fill="var(--m)" rx="3"/>
+      <rect x="${cx - bw / 2}" y="${y(sw)}" width="${bw}" height="${y(0) - y(sw)}" fill="var(--w)" rx="3"/>
+      <text class="lbl" x="${cx}" y="${H - 8}" text-anchor="middle">${esc(lab)}</text>
+      ${sw >= 0.12 ? `<text x="${cx}" y="${(y(sw) + y(0)) / 2 + 4}" text-anchor="middle" style="fill:#fff;font-size:11px">${pct(sw, 0)}</text>` : ""}</g>`;
+  });
+  c.innerHTML = s + "</svg>"; bindTips(c.querySelector("svg"));
+}
+
+function chartPipeline(el, items) {
+  const its = items.slice(0, 8), W = svgW(el), H = 280, T = 10, B = 26, L = 64, R = 40;
+  const n = state.levels.length, x = i => L + (W - L - R) * (n === 1 ? 0.5 : i / (n - 1)), y = v => T + (H - T - B) * (1 - v);
+  const dashes = ["", "6 4", "2 3", "10 3 2 3", "", "6 4", "2 3", "10 3 2 3"];
+  const mark = (k, cx, cy, c) => {
+    const sh = k % 5;
+    if (sh === 0) return `<circle cx="${cx}" cy="${cy}" r="4.5" fill="${c}" stroke="var(--surface)" stroke-width="1.5"/>`;
+    if (sh === 1) return `<rect x="${cx - 4}" y="${cy - 4}" width="8" height="8" fill="${c}" stroke="var(--surface)" stroke-width="1.5"/>`;
+    if (sh === 2) return `<path d="M${cx},${cy - 5} L${cx + 5},${cy + 4} L${cx - 5},${cy + 4} Z" fill="${c}" stroke="var(--surface)" stroke-width="1.5"/>`;
+    if (sh === 3) return `<path d="M${cx},${cy - 5.5} L${cx + 5.5},${cy} L${cx},${cy + 5.5} L${cx - 5.5},${cy} Z" fill="${c}" stroke="var(--surface)" stroke-width="1.5"/>`;
+    return `<path d="M${cx - 4.5},${cy - 4.5} L${cx + 4.5},${cy + 4.5} M${cx + 4.5},${cy - 4.5} L${cx - 4.5},${cy + 4.5}" stroke="${c}" stroke-width="2.5"/>`;
+  };
+  let s = `<div class="legend" style="flex-wrap:wrap">${its.map((it, k) => `<span style="--c:var(--s${k + 1})">${esc(it.name)} · ${esc(tr("overall_w", { p: pct(it.r.women / (it.r.women + it.r.men), 0) }))}</span>`).join("")}</div>`;
+  s += `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(tr("ch_pipe"))}">`;
+  [0, 0.25, 0.5, 0.75, 1].forEach(v => s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/><text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${pct(v, 0)}</text>`);
+  const shortL = nm => W < 560 ? nm.replace(/^\S+\s+(?=[IVX]+$)/, "") : nm;
+  state.levels.forEach((l, i) => { const t_ = shortL(l.name); s += `<text class="lbl" x="${x(i)}" y="${H - 8}" text-anchor="middle">${esc(t_.length > 11 ? t_.slice(0, 10) + "…" : t_)}</text>`; });
+  its.forEach((it, k) => {
+    const c = `var(--s${k + 1})`, pts = it.r.levels.map((l, i) => l.share_women == null ? null : [x(i), y(l.share_women)]);
+    let d = "", pen = false;
+    pts.forEach(p => { if (!p) { pen = false; return; } d += (pen ? "L" : "M") + p[0] + "," + p[1] + " "; pen = true; });
+    s += `<path d="${d}" fill="none" stroke="${c}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" ${dashes[k] ? `stroke-dasharray="${dashes[k]}"` : ""}/>`;
+    it.r.levels.forEach((l, i) => { if (!pts[i]) return;
+      const t_ = `<b>${esc(it.name)}</b><br>${esc(l.level)}: ${pct(l.share_women, 1)} ${esc(tr("women_lc"))}<br>${badge(l.label)}`;
+      s += `<g data-tip="${esc(t_)}"><circle cx="${pts[i][0]}" cy="${pts[i][1]}" r="10" fill="transparent"/>${mark(k, pts[i][0], pts[i][1], c)}</g>`; });
+  });
+  s += "</svg>" + (items.length > 8 ? `<p class="help">${esc(tr("first8"))}</p>` : "");
+  el.innerHTML = s; bindTips(el.querySelector("svg"));
+}
+
+function heatmap(el, items) {
+  const n = state.levels.length;
+  let h = `<div class="tbl-scroll"><div class="heat" style="grid-template-columns:minmax(130px,1.6fr) repeat(${n},minmax(44px,1fr));min-width:${130 + n * 48}px"><div></div>`;
+  h += state.levels.map(l => `<div class="hd" title="${esc(l.name)}">${esc(l.name.replace(/^\S+\s+(?=[IVX]+$)/, ""))}</div>`).join("");
+  items.forEach(({ name, r }) => {
+    h += `<div class="rl"><span title="${esc(name)}">${esc(name)}</span><span style="font-size:11px;color:var(--muted)">${esc(tr("overall_w", { p: pct(r.women / (r.women + r.men), 0) }))}</span></div>`;
+    r.levels.forEach(l => {
+      if (l.share_diff == null) { h += `<div class="c">–</div>`; return; }
+      const pp = l.share_diff * 100, sig = l.label === "HiSig" || l.label === "Sig", a = Math.abs(pp);
+      const tip = `${name} · ${l.level}: ${ppTxt(l.share_diff)} · ${tr("lab_" + l.label)}`;
+      let st = "";
+      if (sig && a >= 0.5) {
+        const alpha = a < 10 ? 0.3 : a < 25 ? 0.6 : 0.95;
+        st = `background:color-mix(in srgb, var(${pp > 0 ? "--pos" : "--neg"}) ${Math.round(alpha * 100)}%, transparent);color:${alpha > 0.5 ? "#fff" : "var(--ink)"};font-weight:${alpha > 0.5 ? 600 : 400}`;
+      }
+      const rd = Math.round(pp);
+      h += `<div class="c" style="${st}" title="${esc(tip)}">${(rd > 0 ? "+" : rd < 0 ? "−" : "") + num(Math.abs(rd), 0)}</div>`;
+    });
+  });
+  el.innerHTML = h + "</div></div>";
 }
 
 // ---------- export / tables ----------
@@ -497,7 +653,8 @@ function tsvAll(rs) {
     +(r.ratio.excess * 100).toFixed(2) + "%", +(r.ratio.confidence * 100).toFixed(3) + "%", tr("lab_" + r.ratio.label)])];
 }
 function tableButtons(el, rowsFn, fname) {
-  el.innerHTML = `<button class="b" data-a="copy">${esc(tr("copy_table"))}</button>${FRAMED ? "" : `<button class="b" data-a="dl">${esc(tr("download"))} CSV</button>`}`;
+  el.innerHTML = `<button class="b" data-a="copy">${esc(tr("copy_table"))}</button><button class="b" data-a="dl" hidden>${esc(tr("download"))} CSV</button>`;
+  canDownload().then(ok => { const b = el.querySelector("[data-a=dl]"); if (b) b.hidden = !ok; });
   el.querySelector("[data-a=copy]").onclick = e => copyText(rowsFn().map(r => r.join("\t")).join("\n"), e.target);
   const dl = el.querySelector("[data-a=dl]");
   if (dl) dl.onclick = () => download(fname, rowsFn().map(r => r.map(c => /[",;\n]/.test(String(c)) ? `"${String(c).replace(/"/g, '""')}"` : c).join(",")).join("\n"), "text/csv");
@@ -510,9 +667,15 @@ function fallbackCopy(text, done) {
   const ta = document.createElement("textarea"); ta.value = text; document.body.appendChild(ta); ta.select();
   try { document.execCommand("copy"); done(); } catch (e) {} ta.remove();
 }
+// Downloads: a normal download on GitHub/GitLab; on the Claude page through its downloads capability
+let _canDl = null;
+function canDownload() {
+  if (!FRAMED) return Promise.resolve(true);
+  if (!_canDl) _canDl = (window.claude && window.claude.use ? window.claude.use("downloads") : Promise.resolve(null)).then(x => !!x, () => false);
+  return _canDl;
+}
 function download(name, text, type) {
-  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name;
-  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  saveFile(name, new TextEncoder().encode(text), type).catch(e => console.warn(e));
 }
 
 // ---------- modals ----------
@@ -532,9 +695,10 @@ function confirmBox(onYes, msg, yesLabel) {
 function exportBox() {
   const data = JSON.stringify({ app: "paygap-estimator", ...state, active: 0 }, null, 2);
   const m = modal(`<h2>${esc(tr("export_title"))}</h2><p class="help">${esc(tr("export_help"))}</p><textarea readonly>${esc(data)}</textarea>
-    <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="b" data-x>${esc(tr("close"))}</button>${FRAMED ? "" : `<button class="b" data-d>${esc(tr("download"))} .json</button>`}<button class="b primary" data-c>${esc(tr("copy"))}</button></div>`);
+    <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="b" data-x>${esc(tr("close"))}</button><button class="b" data-d hidden>${esc(tr("download"))} .json</button><button class="b primary" data-c>${esc(tr("copy"))}</button></div>`);
   m.querySelector("[data-x]").onclick = () => m.remove();
   m.querySelector("[data-c]").onclick = e => copyText(data, e.target);
+  canDownload().then(ok => { const b = m.querySelector("[data-d]"); if (b) b.hidden = !ok; });
   const dd = m.querySelector("[data-d]"); if (dd) dd.onclick = () => download(((state.org || "paygap") + "-" + (state.year || "")).replace(/\s+/g, "_") + ".json", data, "application/json");
 }
 function importBox() {
@@ -559,6 +723,8 @@ function importBox() {
 function viewMethod(v) {
   v.innerHTML = `<section class="card method"><h2>${esc(tr("method_title"))}</h2>${tr("method_html")}</section>`;
 }
+
+/*@@REPORT@@*/
 
 render();
 })();

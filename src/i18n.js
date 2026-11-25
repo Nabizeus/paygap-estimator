@@ -1,6 +1,46 @@
 const I18N = {
 en: {
   locale: "en-GB",
+  women_lc: "women", men_lc: "men",
+  rep_btn: "Download report",
+  rep_making: "Preparing the report…",
+  rep_fail: "The report couldn't be created. Please try again.",
+  rep_pdf_hint: "In the print window, choose “Save as PDF”.",
+  rep_title: "Pay gap report",
+  rep_generated: "Generated on {d} with the Pay Gap Estimator.",
+  rep_settings: "Assumptions",
+  rep_summary: "Summary",
+  rep_key: "Key figures",
+  rep_file: "pay-gap-report",
+  dist_tri_s: "Triangular",
+  dist_uni_s: "Uniform",
+  ch_pyramid: "Women and men by level",
+  ch_contrib: "Where the gap comes from",
+  ch_contrib_d: "How much each level raises (+) or lowers (−) women's average pay compared with men's. Together the bars add up to the average-pay gap ({gap}).",
+  contrib_up: "Raises women's average",
+  contrib_down: "Lowers women's average",
+  eu_title: "EU pay transparency indicators",
+  eu_d: "Estimated the way reports under the EU Pay Transparency Directive (2023/970) present them: gaps relative to men's pay, and women's share in each pay quartile. Medians and quartiles are estimated from band midpoints.",
+  eu_mean: "Mean gap",
+  eu_median: "Median gap",
+  eu_th: "5% threshold",
+  eu_above: "Above 5%",
+  eu_below: "Below 5%",
+  eu_quart: "Women and men per pay quartile",
+  q1: "Q1 lowest",
+  q4: "Q4 highest",
+  ch_pipe: "Women's share by level",
+  ch_pipe_d: "A flat line means women are equally represented at every level; a falling line means they drop out on the way up.",
+  ch_heat: "Over- and under-representation",
+  ch_heat_d: "Women's share at each level minus their share in the department, in percentage points. Grey cells are not statistically significant.",
+  heat_over: "Women over-represented",
+  heat_under: "Women under-represented",
+  heat_ns: "Not significant",
+  overall_w: "{p} women overall",
+  first8: "Showing the first 8 departments.",
+  v_min_w: "Women are only {a} of staff ({r} men for every woman). Even where pay per person is equal, being so under-represented can mean that women are more easily overlooked or not heard, for example in meetings and decisions, and it can cause psychological strain such as stress, isolation or pressure to fit in. This pay analysis can't measure those effects.",
+  v_min_m: "Men are only {a} of staff ({r} women for every man). Even where pay per person is equal, being so under-represented can mean that men are more easily overlooked or not heard, for example in meetings and decisions, and it can cause psychological strain such as stress, isolation or pressure to fit in. This pay analysis can't measure those effects.",
+  ex_depts: ["A · Glass ceiling", "B · Sticky floor", "C · Balanced", "D · Few women, fair pay", "E · Extreme imbalance"],
   pay_pp: "Pay per person", w_share: "Women's share", vs_all: "vs. overall", women_are: "Women are", pp: "pp", rep_under: "under-represented", rep_over: "over-represented", rep_as_expected: "as expected", v_rep_intro: "Women are {a} of staff.", v_under: "They are significantly under-represented at {levels}.", v_over: "They are significantly over-represented at {levels}.",
   ex_company: "Your Company", ex_dept: "Department {x}",
   app_title: "Pay Gap Estimator",
@@ -76,22 +116,65 @@ en: {
 <li><strong>Tests.</strong> Each difference is divided by its combined uncertainty to give a Student t-score, with degrees of freedom = N<sub>women</sub> + N<sub>men</sub> − 2. The two-tailed p-value is the probability of reaching the wrong conclusion (Type I error). Confidence = 1 − p.</li>
 <li><strong>Pay share vs headcount.</strong> The ratio of men's to women's total pay is compared with the ratio of their headcounts. If men's share of pay is larger than their share of headcount, men are paid more per person.</li>
 <li><strong>Representation by level.</strong> For each level, women's share is compared with their share among all other staff using a two-sided Fisher's exact test, which is reliable even for very small groups. Since everyone at a level is assumed to earn the same midpoint, this shows <em>where</em> a gap in average pay comes from: under-representation in well-paid levels lowers women's average, over-representation raises it.</li>
+<li><strong>EU pay transparency indicators.</strong> Following the EU Pay Transparency Directive (2023/970), the mean and median gap are also shown relative to men's pay, together with women's share in each pay quartile (all staff sorted by pay and split into four equal groups). A gap of 5% or more is flagged: from that level the Directive requires employers to justify or correct the gap. Here these values are estimated from band midpoints.</li>
 </ol>
 <h3>Limits</h3>
 <ul>
 <li>Average pay here is an estimate based on band midpoints. It can only show a gap caused by how women and men are spread across levels, not differences in pay within a band.</li>
 <li>Small groups (fewer than ~5 people) give unreliable results and may make individuals identifiable.</li>
 <li>Statistical significance isn't proof of discrimination. It shows the difference is unlikely to be due to chance under these assumptions.</li>
+<li>The analysis only looks at pay. A strong headcount imbalance (e.g. fewer than about 30% women, a common rule of thumb for a "critical mass") is worth noting even when pay per person is equal. The under-represented group can be more easily overlooked or not heard, for example in meetings and decisions, and can experience psychological strain such as stress, isolation or pressure to fit in. Salary data can't show these effects.</li>
 </ul>
 <h3>Sources</h3>
 <ol class="src">
 <li><a href="https://doi.org/10.59161/JCGM100-2008E" target="_blank" rel="noopener">JCGM 100:2008 — Evaluation of measurement data: Guide to the expression of uncertainty in measurement (GUM)</a>. Joint Committee for Guides in Metrology / BIPM. The uniform (rectangular) distribution is described in section 4.3.7 and the triangular distribution in section 4.3.9. Free to download from the BIPM website.</li>
 <li><a href="https://www.gik.kit.edu/downloads/%5BSCHW20%5DGUM_AVN_Teil1.pdf" target="_blank" rel="noopener">Schwarz, W. (2020): Methoden zur Bestimmung der Messunsicherheit nach GUM – Teil 1</a>. avn – Allgemeine Vermessungs-Nachrichten 127(2), 69–86. A German-language summary of the GUM method, including the uniform and triangular distributions (p. 75).</li>
 <li><a href="https://www.ttable.org/" target="_blank" rel="noopener">Student's t-distribution table (ttable.org)</a>. Reference table of critical t-values. The app calculates exact two-tailed p-values instead of reading them from a table.</li>
+<li><a href="https://eur-lex.europa.eu/eli/dir/2023/970/oj" target="_blank" rel="noopener">Directive (EU) 2023/970 (Pay Transparency Directive)</a>. EUR-Lex. Indicators for gender pay gap reporting (Article 9).</li>
 </ol>`
 },
 es: {
   locale: "es-ES",
+  women_lc: "mujeres", men_lc: "hombres",
+  rep_btn: "Descargar informe",
+  rep_making: "Preparando el informe…",
+  rep_fail: "No se ha podido crear el informe. Inténtalo de nuevo.",
+  rep_pdf_hint: "En la ventana de impresión, elige «Guardar como PDF».",
+  rep_title: "Informe de brecha salarial",
+  rep_generated: "Generado el {d} con el Estimador de brecha salarial.",
+  rep_settings: "Supuestos",
+  rep_summary: "Resumen",
+  rep_key: "Cifras clave",
+  rep_file: "informe-brecha-salarial",
+  dist_tri_s: "Triangular",
+  dist_uni_s: "Uniforme",
+  ch_pyramid: "Mujeres y hombres por nivel",
+  ch_contrib: "De dónde viene la brecha",
+  ch_contrib_d: "Cuánto sube (+) o baja (−) cada nivel el salario medio de las mujeres respecto al de los hombres. En conjunto, las barras suman la brecha del salario medio ({gap}).",
+  contrib_up: "Sube la media de las mujeres",
+  contrib_down: "Baja la media de las mujeres",
+  eu_title: "Indicadores de transparencia salarial de la UE",
+  eu_d: "Estimados como se presentan en los informes de la Directiva de transparencia salarial de la UE (2023/970): brechas respecto al salario de los hombres y proporción de mujeres en cada cuartil salarial. Medianas y cuartiles se estiman a partir de los puntos medios.",
+  eu_mean: "Brecha media",
+  eu_median: "Brecha mediana",
+  eu_th: "Umbral del 5 %",
+  eu_above: "Por encima del 5 %",
+  eu_below: "Por debajo del 5 %",
+  eu_quart: "Mujeres y hombres por cuartil salarial",
+  q1: "Q1 más bajo",
+  q4: "Q4 más alto",
+  ch_pipe: "Proporción de mujeres por nivel",
+  ch_pipe_d: "Una línea plana significa que las mujeres están igual de representadas en todos los niveles; una línea descendente, que se pierden en el camino hacia arriba.",
+  ch_heat: "Sobre- e infrarrepresentación",
+  ch_heat_d: "Proporción de mujeres en cada nivel menos su proporción en el departamento, en puntos porcentuales. Las celdas grises no son estadísticamente significativas.",
+  heat_over: "Mujeres sobrerrepresentadas",
+  heat_under: "Mujeres infrarrepresentadas",
+  heat_ns: "No significativa",
+  overall_w: "{p} mujeres en total",
+  first8: "Se muestran los primeros 8 departamentos.",
+  v_min_w: "Las mujeres son solo el {a} de la plantilla ({r} hombres por cada mujer). Aunque el salario por persona sea igual, estar tan infrarrepresentadas puede hacer que se las pase por alto o no se las escuche, por ejemplo en reuniones y decisiones, y puede causar una carga psicológica como estrés, aislamiento o presión para encajar. Este análisis salarial no puede medir esos efectos.",
+  v_min_m: "Los hombres son solo el {a} de la plantilla ({r} mujeres por cada hombre). Aunque el salario por persona sea igual, estar tan infrarrepresentados puede hacer que se los pase por alto o no se los escuche, por ejemplo en reuniones y decisiones, y puede causar una carga psicológica como estrés, aislamiento o presión para encajar. Este análisis salarial no puede medir esos efectos.",
+  ex_depts: ["A · Techo de cristal", "B · Suelo pegajoso", "C · Equilibrado", "D · Pocas mujeres, salario justo", "E · Desequilibrio extremo"],
   pay_pp: "Salario por persona", w_share: "Proporción de mujeres", vs_all: "vs. total", women_are: "Las mujeres están", pp: "p.p.", rep_under: "infrarrepresentadas", rep_over: "sobrerrepresentadas", rep_as_expected: "según lo esperado", v_rep_intro: "Las mujeres son el {a} de la plantilla.", v_under: "Están significativamente infrarrepresentadas en {levels}.", v_over: "Están significativamente sobrerrepresentadas en {levels}.",
   ex_company: "Tu empresa", ex_dept: "Departamento {x}",
   app_title: "Estimador de brecha salarial",
@@ -167,22 +250,65 @@ es: {
 <li><strong>Pruebas.</strong> Cada diferencia se divide entre su incertidumbre combinada para obtener una t de Student, con grados de libertad = N<sub>mujeres</sub> + N<sub>hombres</sub> − 2. El valor p bilateral es la probabilidad de llegar a una conclusión errónea (error de tipo I); confianza = 1 − p.</li>
 <li><strong>Reparto salarial vs plantilla.</strong> Se compara el cociente entre la masa salarial de hombres y mujeres con el cociente de su número. Si los hombres reciben una parte mayor del salario que su parte de la plantilla, cobran más por persona.</li>
 <li><strong>Representación por nivel.</strong> En cada nivel, la proporción de mujeres se compara con su proporción en el resto de la plantilla mediante la prueba exacta de Fisher bilateral, fiable incluso con grupos muy pequeños. Como se supone que todas las personas de un nivel cobran el mismo punto medio, esto muestra <em>de dónde</em> viene una brecha en el salario medio: la infrarrepresentación en niveles bien pagados baja la media de las mujeres y la sobrerrepresentación la sube.</li>
+<li><strong>Indicadores de transparencia salarial de la UE.</strong> Siguiendo la Directiva de transparencia salarial de la UE (2023/970), la brecha media y la mediana se muestran también respecto al salario de los hombres, junto con la proporción de mujeres en cada cuartil salarial (toda la plantilla ordenada por salario y dividida en cuatro grupos iguales). Se señala una brecha del 5 % o más: a partir de ese nivel la Directiva exige a las empresas justificar o corregir la brecha. Aquí estos valores se estiman a partir de los puntos medios.</li>
 </ol>
 <h3>Limitaciones</h3>
 <ul>
 <li>El salario medio es una estimación a partir de los puntos medios: solo puede detectar brechas debidas a cómo se reparten mujeres y hombres entre los niveles, no diferencias dentro de una misma banda.</li>
 <li>Los grupos pequeños (menos de ~5 personas) dan resultados poco fiables y pueden permitir identificar a personas.</li>
 <li>Que una diferencia sea estadísticamente significativa no prueba discriminación: indica que, con estos supuestos, es poco probable que se deba al azar.</li>
+<li>El análisis solo examina el salario. Un fuerte desequilibrio en la plantilla (p. ej., menos de un 30 % de mujeres, una regla habitual de «masa crítica») merece señalarse aunque el salario por persona sea igual. Al grupo infrarrepresentado se le puede pasar por alto o no escuchar, por ejemplo en reuniones y decisiones, y puede sufrir una carga psicológica como estrés, aislamiento o presión para encajar. Los datos salariales no muestran esos efectos.</li>
 </ul>
 <h3>Fuentes</h3>
 <ol class="src">
 <li><a href="https://doi.org/10.59161/JCGM100-2008E" target="_blank" rel="noopener">JCGM 100:2008 — Evaluation of measurement data: Guide to the expression of uncertainty in measurement (GUM)</a>. Joint Committee for Guides in Metrology / BIPM. La distribución uniforme (rectangular) se describe en el apartado 4.3.7 y la triangular en el 4.3.9. Descarga gratuita en la web del BIPM.</li>
 <li><a href="https://www.gik.kit.edu/downloads/%5BSCHW20%5DGUM_AVN_Teil1.pdf" target="_blank" rel="noopener">Schwarz, W. (2020): Methoden zur Bestimmung der Messunsicherheit nach GUM – Teil 1</a>. avn – Allgemeine Vermessungs-Nachrichten 127(2), 69–86. Resumen en alemán del método GUM, con las distribuciones uniforme y triangular (p. 75).</li>
 <li><a href="https://www.ttable.org/" target="_blank" rel="noopener">Student's t-distribution table (ttable.org)</a>. Tabla de referencia de valores críticos de t. La aplicación calcula valores p bilaterales exactos en lugar de leerlos de una tabla.</li>
+<li><a href="https://eur-lex.europa.eu/eli/dir/2023/970/oj" target="_blank" rel="noopener">Directive (EU) 2023/970 (Pay Transparency Directive)</a>. EUR-Lex. Indicadores para informar sobre la brecha salarial de género (artículo 9).</li>
 </ol>`
 },
 ca: {
   locale: "ca-ES",
+  women_lc: "dones", men_lc: "homes",
+  rep_btn: "Descarregar informe",
+  rep_making: "Preparant l'informe…",
+  rep_fail: "No s'ha pogut crear l'informe. Torna-ho a provar.",
+  rep_pdf_hint: "A la finestra d'impressió, tria «Desa com a PDF».",
+  rep_title: "Informe de bretxa salarial",
+  rep_generated: "Generat el {d} amb l'Estimador de bretxa salarial.",
+  rep_settings: "Supòsits",
+  rep_summary: "Resum",
+  rep_key: "Xifres clau",
+  rep_file: "informe-bretxa-salarial",
+  dist_tri_s: "Triangular",
+  dist_uni_s: "Uniforme",
+  ch_pyramid: "Dones i homes per nivell",
+  ch_contrib: "D'on ve la bretxa",
+  ch_contrib_d: "Quant puja (+) o baixa (−) cada nivell el salari mitjà de les dones respecte al dels homes. En conjunt, les barres sumen la bretxa del salari mitjà ({gap}).",
+  contrib_up: "Apuja la mitjana de les dones",
+  contrib_down: "Abaixa la mitjana de les dones",
+  eu_title: "Indicadors de transparència salarial de la UE",
+  eu_d: "Estimats com es presenten als informes de la Directiva de transparència salarial de la UE (2023/970): bretxes respecte al salari dels homes i proporció de dones a cada quartil salarial. Les medianes i els quartils s'estimen a partir dels punts mitjans.",
+  eu_mean: "Bretxa mitjana",
+  eu_median: "Bretxa mediana",
+  eu_th: "Llindar del 5 %",
+  eu_above: "Per sobre del 5 %",
+  eu_below: "Per sota del 5 %",
+  eu_quart: "Dones i homes per quartil salarial",
+  q1: "Q1 més baix",
+  q4: "Q4 més alt",
+  ch_pipe: "Proporció de dones per nivell",
+  ch_pipe_d: "Una línia plana vol dir que les dones estan igual de representades a tots els nivells; una línia descendent, que es perden pel camí cap amunt.",
+  ch_heat: "Sobre- i infrarepresentació",
+  ch_heat_d: "Proporció de dones a cada nivell menys la seva proporció al departament, en punts percentuals. Les cel·les grises no són estadísticament significatives.",
+  heat_over: "Dones sobrerepresentades",
+  heat_under: "Dones infrarepresentades",
+  heat_ns: "No significativa",
+  overall_w: "{p} dones en total",
+  first8: "Es mostren els primers 8 departaments.",
+  v_min_w: "Les dones són només el {a} de la plantilla ({r} homes per cada dona). Encara que el salari per persona sigui igual, estar tan infrarepresentades pot fer que se les passi per alt o no se les escolti, per exemple en reunions i decisions, i pot causar una càrrega psicològica com estrès, aïllament o pressió per encaixar. Aquesta anàlisi salarial no pot mesurar aquests efectes.",
+  v_min_m: "Els homes són només el {a} de la plantilla ({r} dones per cada home). Encara que el salari per persona sigui igual, estar tan infrarepresentats pot fer que se'ls passi per alt o no se'ls escolti, per exemple en reunions i decisions, i pot causar una càrrega psicològica com estrès, aïllament o pressió per encaixar. Aquesta anàlisi salarial no pot mesurar aquests efectes.",
+  ex_depts: ["A · Sostre de vidre", "B · Terra enganxós", "C · Equilibrat", "D · Poques dones, salari just", "E · Desequilibri extrem"],
   pay_pp: "Salari per persona", w_share: "Proporció de dones", vs_all: "vs. total", women_are: "Les dones estan", pp: "p.p.", rep_under: "infrarepresentades", rep_over: "sobrerepresentades", rep_as_expected: "segons l'esperat", v_rep_intro: "Les dones són el {a} de la plantilla.", v_under: "Estan significativament infrarepresentades a {levels}.", v_over: "Estan significativament sobrerepresentades a {levels}.",
   ex_company: "La teva empresa", ex_dept: "Departament {x}",
   app_title: "Estimador de bretxa salarial",
@@ -258,22 +384,65 @@ ca: {
 <li><strong>Proves.</strong> Cada diferència es divideix per la seva incertesa combinada per obtenir una t de Student, amb graus de llibertat = N<sub>dones</sub> + N<sub>homes</sub> − 2. El valor p bilateral és la probabilitat d'arribar a una conclusió errònia (error de tipus I); confiança = 1 − p.</li>
 <li><strong>Repartiment salarial vs plantilla.</strong> Es compara el quocient entre la massa salarial d'homes i dones amb el quocient del seu nombre. Si els homes reben una part del salari més gran que la seva part de la plantilla, cobren més per persona.</li>
 <li><strong>Representació per nivell.</strong> A cada nivell, la proporció de dones es compara amb la seva proporció en la resta de la plantilla amb la prova exacta de Fisher bilateral, fiable fins i tot amb grups molt petits. Com que se suposa que totes les persones d'un nivell cobren el mateix punt mitjà, això mostra <em>d'on</em> ve una bretxa en el salari mitjà: la infrarepresentació en nivells ben pagats abaixa la mitjana de les dones i la sobrerepresentació l'apuja.</li>
+<li><strong>Indicadors de transparència salarial de la UE.</strong> Seguint la Directiva de transparència salarial de la UE (2023/970), la bretxa mitjana i la mediana també es mostren respecte al salari dels homes, juntament amb la proporció de dones a cada quartil salarial (tota la plantilla ordenada per salari i dividida en quatre grups iguals). Es marca una bretxa del 5 % o més: a partir d'aquest nivell la Directiva exigeix a les empreses justificar o corregir la bretxa. Aquí aquests valors s'estimen a partir dels punts mitjans.</li>
 </ol>
 <h3>Limitacions</h3>
 <ul>
 <li>El salari mitjà és una estimació a partir dels punts mitjans: només pot detectar bretxes degudes a com es reparteixen dones i homes entre els nivells, no diferències dins d'una mateixa banda.</li>
 <li>Els grups petits (menys de ~5 persones) donen resultats poc fiables i poden permetre identificar persones.</li>
 <li>Que una diferència sigui estadísticament significativa no prova discriminació: indica que, amb aquests supòsits, és poc probable que sigui fruit de l'atzar.</li>
+<li>L'anàlisi només examina el salari. Un fort desequilibri a la plantilla (p. ex., menys d'un 30 % de dones, una regla habitual de «massa crítica») val la pena assenyalar-lo encara que el salari per persona sigui igual. El grup infrarepresentat pot passar desapercebut o no ser escoltat, per exemple en reunions i decisions, i pot patir una càrrega psicològica com estrès, aïllament o pressió per encaixar. Les dades salarials no mostren aquests efectes.</li>
 </ul>
 <h3>Fonts</h3>
 <ol class="src">
 <li><a href="https://doi.org/10.59161/JCGM100-2008E" target="_blank" rel="noopener">JCGM 100:2008 — Evaluation of measurement data: Guide to the expression of uncertainty in measurement (GUM)</a>. Joint Committee for Guides in Metrology / BIPM. La distribució uniforme (rectangular) es descriu a l'apartat 4.3.7 i la triangular al 4.3.9. Descàrrega gratuïta al web del BIPM.</li>
 <li><a href="https://www.gik.kit.edu/downloads/%5BSCHW20%5DGUM_AVN_Teil1.pdf" target="_blank" rel="noopener">Schwarz, W. (2020): Methoden zur Bestimmung der Messunsicherheit nach GUM – Teil 1</a>. avn – Allgemeine Vermessungs-Nachrichten 127(2), 69–86. Resum en alemany del mètode GUM, amb les distribucions uniforme i triangular (p. 75).</li>
 <li><a href="https://www.ttable.org/" target="_blank" rel="noopener">Student's t-distribution table (ttable.org)</a>. Taula de referència de valors crítics de t. L'aplicació calcula valors p bilaterals exactes en lloc de llegir-los d'una taula.</li>
+<li><a href="https://eur-lex.europa.eu/eli/dir/2023/970/oj" target="_blank" rel="noopener">Directive (EU) 2023/970 (Pay Transparency Directive)</a>. EUR-Lex. Indicadors per informar sobre la bretxa salarial de gènere (article 9).</li>
 </ol>`
 },
 de: {
   locale: "de-DE",
+  women_lc: "Frauen", men_lc: "Männer",
+  rep_btn: "Bericht herunterladen",
+  rep_making: "Bericht wird erstellt …",
+  rep_fail: "Der Bericht konnte nicht erstellt werden. Bitte erneut versuchen.",
+  rep_pdf_hint: "Wählen Sie im Druckfenster „Als PDF speichern“.",
+  rep_title: "Bericht zur Entgeltlücke",
+  rep_generated: "Erstellt am {d} mit dem Entgeltlücken-Schätzer.",
+  rep_settings: "Annahmen",
+  rep_summary: "Zusammenfassung",
+  rep_key: "Kennzahlen",
+  rep_file: "entgeltluecken-bericht",
+  dist_tri_s: "Dreieckig",
+  dist_uni_s: "Gleichverteilt",
+  ch_pyramid: "Frauen und Männer nach Stufe",
+  ch_contrib: "Woher die Lücke kommt",
+  ch_contrib_d: "Wie stark jede Stufe das Durchschnittsgehalt der Frauen im Vergleich zu den Männern erhöht (+) oder senkt (−). Zusammen ergeben die Balken die Lücke beim Durchschnittsgehalt ({gap}).",
+  contrib_up: "Erhöht den Durchschnitt der Frauen",
+  contrib_down: "Senkt den Durchschnitt der Frauen",
+  eu_title: "EU-Indikatoren zur Entgelttransparenz",
+  eu_d: "Geschätzt wie in Berichten nach der EU-Entgelttransparenzrichtlinie (2023/970): Lücken relativ zum Gehalt der Männer und Frauenanteil in jedem Gehaltsquartil. Mediane und Quartile werden aus den Bandmitten geschätzt.",
+  eu_mean: "Mittlere Lücke",
+  eu_median: "Median-Lücke",
+  eu_th: "5-%-Schwelle",
+  eu_above: "Über 5 %",
+  eu_below: "Unter 5 %",
+  eu_quart: "Frauen und Männer je Gehaltsquartil",
+  q1: "Q1 niedrigstes",
+  q4: "Q4 höchstes",
+  ch_pipe: "Frauenanteil nach Stufe",
+  ch_pipe_d: "Eine flache Linie bedeutet, dass Frauen auf allen Stufen gleich vertreten sind; eine fallende Linie, dass sie auf dem Weg nach oben verloren gehen.",
+  ch_heat: "Über- und Unterrepräsentation",
+  ch_heat_d: "Frauenanteil auf jeder Stufe minus ihr Anteil in der Abteilung, in Prozentpunkten. Graue Zellen sind statistisch nicht signifikant.",
+  heat_over: "Frauen überrepräsentiert",
+  heat_under: "Frauen unterrepräsentiert",
+  heat_ns: "Nicht signifikant",
+  overall_w: "{p} Frauen insgesamt",
+  first8: "Es werden die ersten 8 Abteilungen gezeigt.",
+  v_min_w: "Frauen machen nur {a} des Personals aus ({r} Männer pro Frau). Selbst wenn das Gehalt pro Person gleich ist, kann eine so starke Unterrepräsentation dazu führen, dass Frauen leichter übersehen oder nicht gehört werden, etwa in Besprechungen und bei Entscheidungen, und sie kann psychisch belasten, z. B. durch Stress, Isolation oder Anpassungsdruck. Diese Gehaltsanalyse kann solche Effekte nicht messen.",
+  v_min_m: "Männer machen nur {a} des Personals aus ({r} Frauen pro Mann). Selbst wenn das Gehalt pro Person gleich ist, kann eine so starke Unterrepräsentation dazu führen, dass Männer leichter übersehen oder nicht gehört werden, etwa in Besprechungen und bei Entscheidungen, und sie kann psychisch belasten, z. B. durch Stress, Isolation oder Anpassungsdruck. Diese Gehaltsanalyse kann solche Effekte nicht messen.",
+  ex_depts: ["A · Gläserne Decke", "B · Klebriger Boden", "C · Ausgewogen", "D · Wenige Frauen, faire Bezahlung", "E · Extremes Ungleichgewicht"],
   pay_pp: "Gehalt pro Person", w_share: "Frauenanteil", vs_all: "vs. gesamt", women_are: "Frauen sind", pp: "Pp.", rep_under: "unterrepräsentiert", rep_over: "überrepräsentiert", rep_as_expected: "wie erwartet", v_rep_intro: "Frauen machen {a} des Personals aus.", v_under: "Sie sind signifikant unterrepräsentiert in {levels}.", v_over: "Sie sind signifikant überrepräsentiert in {levels}.",
   ex_company: "Ihr Unternehmen", ex_dept: "Abteilung {x}",
   app_title: "Entgeltlücken-Schätzer",
@@ -349,18 +518,21 @@ de: {
 <li><strong>Tests.</strong> Jeder Unterschied wird durch seine kombinierte Unsicherheit geteilt. Das ergibt einen Student-t-Wert mit Freiheitsgraden = N<sub>Frauen</sub> + N<sub>Männer</sub> − 2. Der zweiseitige p-Wert ist die Wahrscheinlichkeit eines Fehlschlusses (Fehler 1. Art). Konfidenz = 1 − p.</li>
 <li><strong>Gehaltsanteil vs. Personalanteil.</strong> Das Verhältnis der Gesamtvergütung von Männern zu Frauen wird mit dem Verhältnis ihrer Personalzahlen verglichen. Ist der Gehaltsanteil der Männer größer als ihr Personalanteil, verdienen sie pro Kopf mehr.</li>
 <li><strong>Vertretung nach Stufe.</strong> Für jede Stufe wird der Frauenanteil mit ihrem Anteil am übrigen Personal verglichen, mit dem zweiseitigen exakten Test nach Fisher, der auch bei sehr kleinen Gruppen zuverlässig ist. Da für alle Personen einer Stufe dieselbe Bandmitte angenommen wird, zeigt dies, <em>woher</em> eine Lücke beim Durchschnittsgehalt kommt: Unterrepräsentation in gut bezahlten Stufen senkt den Durchschnitt der Frauen, Überrepräsentation hebt ihn.</li>
+<li><strong>EU-Indikatoren zur Entgelttransparenz.</strong> Nach der EU-Entgelttransparenzrichtlinie (2023/970) werden die mittlere und die Median-Lücke zusätzlich relativ zum Gehalt der Männer gezeigt, zusammen mit dem Frauenanteil in jedem Gehaltsquartil (das gesamte Personal nach Gehalt sortiert und in vier gleich große Gruppen geteilt). Eine Lücke von 5 % oder mehr wird markiert: Ab dieser Höhe verlangt die Richtlinie, dass Arbeitgeber die Lücke begründen oder beheben. Hier werden diese Werte aus den Bandmitten geschätzt.</li>
 </ol>
 <h3>Grenzen</h3>
 <ul>
 <li>Das Durchschnittsgehalt ist eine Schätzung auf Basis der Bandmitten. Es zeigt nur Lücken, die durch die Verteilung von Frauen und Männern auf die Stufen entstehen, nicht Unterschiede innerhalb eines Bandes.</li>
 <li>Kleine Gruppen (unter ~5 Personen) liefern unzuverlässige Ergebnisse und können einzelne Personen erkennbar machen.</li>
 <li>Statistische Signifikanz ist kein Beweis für Diskriminierung. Sie zeigt nur, dass der Unterschied unter diesen Annahmen wahrscheinlich nicht zufällig ist.</li>
+<li>Die Analyse betrachtet nur das Gehalt. Ein starkes Ungleichgewicht beim Personal (z. B. weniger als etwa 30 % Frauen, eine gängige Faustregel für eine „kritische Masse“) ist auch bei gleichem Gehalt pro Person erwähnenswert. Die unterrepräsentierte Gruppe kann leichter übersehen oder nicht gehört werden, etwa in Besprechungen und bei Entscheidungen, und psychisch belastet sein, z. B. durch Stress, Isolation oder Anpassungsdruck. Gehaltsdaten zeigen solche Effekte nicht.</li>
 </ul>
 <h3>Quellen</h3>
 <ol class="src">
 <li><a href="https://doi.org/10.59161/JCGM100-2008E" target="_blank" rel="noopener">JCGM 100:2008 — Evaluation of measurement data: Guide to the expression of uncertainty in measurement (GUM)</a>. Joint Committee for Guides in Metrology / BIPM. Die Gleich- (Rechteck-)verteilung wird in Abschnitt 4.3.7 beschrieben, die Dreiecksverteilung in Abschnitt 4.3.9. Kostenloser Download auf der Website des BIPM.</li>
 <li><a href="https://www.gik.kit.edu/downloads/%5BSCHW20%5DGUM_AVN_Teil1.pdf" target="_blank" rel="noopener">Schwarz, W. (2020): Methoden zur Bestimmung der Messunsicherheit nach GUM – Teil 1</a>. avn – Allgemeine Vermessungs-Nachrichten 127(2), 69–86. Deutschsprachige Zusammenfassung der GUM-Methode, einschließlich Gleich- und Dreiecksverteilung (S. 75).</li>
 <li><a href="https://www.ttable.org/" target="_blank" rel="noopener">Student's t-distribution table (ttable.org)</a>. Referenztabelle kritischer t-Werte. Die App berechnet exakte zweiseitige p-Werte, statt sie aus einer Tabelle abzulesen.</li>
+<li><a href="https://eur-lex.europa.eu/eli/dir/2023/970/oj" target="_blank" rel="noopener">Directive (EU) 2023/970 (Pay Transparency Directive)</a>. EUR-Lex. Indikatoren für die Berichterstattung über das geschlechtsspezifische Entgeltgefälle (Artikel 9).</li>
 </ol>`
 }
 };

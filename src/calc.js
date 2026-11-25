@@ -74,6 +74,33 @@ const PayGap = (() => {
     for (let x = lo; x <= hi; x++) { const v = lp(x); if (v <= obs + 1e-7) p += Math.exp(v); }
     return Math.min(1, p);
   }
+  // EU Pay Transparency style indicators, estimated from band midpoints:
+  // mean and median gap relative to men's pay, and women's share per pay quartile.
+  function euIndicators(rows, W, M, aw, am) {
+    const sorted = rows.filter(r => r.women + r.men > 0).slice().sort((a, b) => a.midpoint - b.midpoint);
+    const median = key => {
+      const tot = sorted.reduce((a, r) => a + r[key], 0);
+      if (!tot) return NaN;
+      const half = (tot + 1) / 2; let acc = 0;
+      for (const r of sorted) { acc += r[key]; if (acc >= half) return r.midpoint; }
+      return NaN;
+    };
+    const mw = median("women"), mm = median("men");
+    const N = W + M, q = [[0, 0], [0, 0], [0, 0], [0, 0]];
+    let pos = 0;
+    for (const r of sorted) {
+      const n = r.women + r.men;
+      for (let k = 0; k < 4; k++) {
+        const ov = Math.max(0, Math.min(pos + n, (k + 1) * N / 4) - Math.max(pos, k * N / 4));
+        q[k][0] += ov * r.women / n; q[k][1] += ov * r.men / n;
+      }
+      pos += n;
+    }
+    const meanGap = am ? (aw - am) / am : NaN, medianGap = mm ? (mw - mm) / mm : NaN;
+    return { mean_gap: meanGap, median_gap: medianGap, median_women: mw, median_men: mm,
+      quartiles: q.map(([w, m]) => ({ women: w, men: m, share_women: w + m ? w / (w + m) : NaN })),
+      above_threshold: Math.abs(meanGap) >= 0.05 || Math.abs(medianGap) >= 0.05 };
+  }
   const mid = l => (l.mid != null && l.mid !== "" && isFinite(+l.mid)) ? +l.mid : (+l.min + +l.max) / 2;
 
   /** levels: [{name,min,max,mid?}], women:[n], men:[n] */
@@ -117,7 +144,10 @@ const PayGap = (() => {
     const rerr = fw && fm ? pr * Math.sqrt((gw / fw) ** 2 + (gm / fm) ** 2) : 0;
     const ratio = test(hr - pr, rerr, dof, th);
     Object.assign(ratio, { headcount_ratio: hr, pay_ratio: pr, excess: pr / hr - 1 });
-    return Object.assign(out, { total, mean, ratio });
+    // Where the gap comes from: each level's contribution to (women's average - men's average)
+    rows.forEach(r => { r.contribution = r.midpoint * (r.women / nw - r.men / nm); });
+    const eu = euIndicators(rows, nw, nm, aw, am);
+    return Object.assign(out, { total, mean, ratio, eu });
   }
   return { analyze, tP, label, mid, fisher };
 })();
